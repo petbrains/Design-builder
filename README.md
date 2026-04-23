@@ -9,11 +9,11 @@ Built on top of five open-source projects: [Impeccable](https://github.com/pbaka
 SuperDesign is distributed as a Claude Code plugin. Install it via the plugin marketplace:
 
 ```
-/plugin marketplace add <owner>/superdesign
+/plugin marketplace add petbrains/design-plugin
 /plugin install superdesign@superdesign-marketplace
 ```
 
-Replace `<owner>` with the GitHub org/user hosting this repo. The `marketplace.json` at the repo root lets you add the repo itself as a marketplace source.
+The `marketplace.json` at the repo root lets you add the repo itself as a marketplace source — no separate marketplace repo needed.
 
 Alternatively, clone the repo into your project's plugin search path.
 

@@ -25,7 +25,7 @@ Node.js anti-pattern detector works in `--fast` mode without npm dependencies.
 ## Plugin installation (for end users)
 
 ```
-/plugin marketplace add <owner>/superdesign
+/plugin marketplace add petbrains/design-plugin
 /plugin install superdesign@superdesign-marketplace
 ```
 
