@@ -9,7 +9,7 @@ Built on top of five open-source projects: [Impeccable](https://github.com/pbaka
 SuperDesign is distributed as a Claude Code plugin. Install it via the plugin marketplace:
 
 ```
-/plugin marketplace add petbrains/design-plugin
+/plugin marketplace add petbrains/superdesign
 /plugin install superdesign@superdesign-marketplace
 ```
 
