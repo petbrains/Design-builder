@@ -2,12 +2,20 @@
 # -*- coding: utf-8 -*-
 """
 UI/UX Pro Max Search - BM25 search engine for UI/UX style guides
-Usage: python search.py "<query>" [--domain <domain>] [--stack <stack>] [--max-results 3]
-       python search.py "<query>" --design-system [-p "Project Name"]
+Usage: python search.py "<query>" [--domain <domain>] [--stack <stack>] [--platform web|ios] [--max-results 3]
+       python search.py "<query>" --design-system [-p "Project Name"] [--platform web|ios]
        python search.py "<query>" --design-system --persist [-p "Project Name"] [--page "dashboard"]
 
 Domains: style, prompt, color, chart, landing, product, ux, typography, google-fonts
 Stacks: react, nextjs, vue, svelte, astro, swiftui, react-native, flutter, nuxtjs, nuxt-ui, html-tailwind, shadcn, jetpack-compose, threejs
+Platforms: web, ios — informational filter; also tags output for downstream pipelines
+
+Token sourcing priority (Claude consumers: read this):
+  1. Project tokens (existing design system in repo)
+  2. designlib MCP (if connected) — preferred for authoritative tokens:
+     mcp://designlib/get_domain(domain_id, platform="web"|"ios", top_n=3)
+  3. This CSV search (for UX guidelines, charts, landing patterns, icons — designlib doesn't cover)
+  4. Free generation (last resort)
 
 Persistence (Master + Overrides pattern):
   --persist    Save design system to design-system/MASTER.md
@@ -27,12 +35,22 @@ if sys.stderr.encoding and sys.stderr.encoding.lower() != 'utf-8':
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 
-def format_output(result):
+DESIGNLIB_HINT = (
+    "\n> **Note:** For authoritative style/palette/font tokens, prefer designlib MCP:\n"
+    ">   `get_domain(domain_id=..., platform=\"web\"|\"ios\", top_n=3)`.\n"
+    "> This CSV search is best for UX guidelines, charts, landing patterns, icons, anti-patterns.\n"
+)
+
+
+def format_output(result, platform=None):
     """Format results for Claude consumption (token-optimized)"""
     if "error" in result:
         return f"Error: {result['error']}"
 
     output = []
+    if platform:
+        output.append(f"> **Platform:** {platform}")
+    output.append(DESIGNLIB_HINT)
     if result.get("stack"):
         output.append(f"## UI Pro Max Stack Guidelines")
         output.append(f"**Stack:** {result['stack']} | **Query:** {result['query']}")
@@ -59,6 +77,8 @@ if __name__ == "__main__":
     parser.add_argument("--domain", "-d", choices=list(CSV_CONFIG.keys()), help="Search domain")
     parser.add_argument("--stack", "-s", choices=AVAILABLE_STACKS, help=f"Stack-specific search. Available: {', '.join(AVAILABLE_STACKS)}")
     parser.add_argument("--max-results", "-n", type=int, default=MAX_RESULTS, help="Max results (default: 3)")
+    parser.add_argument("--platform", choices=["web", "ios"], default=None,
+                        help="Target platform. Informational — tags results for downstream pipelines. For authoritative tokens prefer designlib MCP.")
     parser.add_argument("--json", action="store_true", help="Output as JSON")
     # Design system generation
     parser.add_argument("--design-system", "-ds", action="store_true", help="Generate complete design system recommendation")
@@ -103,7 +123,7 @@ if __name__ == "__main__":
             import json
             print(json.dumps(result, indent=2, ensure_ascii=False))
         else:
-            print(format_output(result))
+            print(format_output(result, platform=args.platform))
     # Domain search
     else:
         result = search(args.query, args.domain, args.max_results)
@@ -111,4 +131,4 @@ if __name__ == "__main__":
             import json
             print(json.dumps(result, indent=2, ensure_ascii=False))
         else:
-            print(format_output(result))
+            print(format_output(result, platform=args.platform))
