@@ -1,63 +1,72 @@
-# Design Plugin for Claude Code
+# SuperDesign — Claude Code Plugin
 
-Unified design skill for Claude Code with 30 commands covering the full design lifecycle -- from UX planning to production polish.
+Unified design skill for Claude Code. 22+ commands covering the full design lifecycle — UX planning, design-system generation, craft, audit, polish, brand, assets. Web + iOS (iOS 18 + iOS 26 Liquid Glass). Backed by BM25 search, iOS HIG references, designer motion perspectives (Emil Kowalski / Jakub Krehel / Jhey Tompkins), and 30+ anti-pattern checks.
 
-Built on top of four open-source projects: [Impeccable](https://github.com/pbakaus/impeccable), [Emil Kowalski Design Skill](https://emilkowal.ski/skill), [Taste Skill](https://github.com/Leonxlnx/taste-skill), and [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill). See [NOTICE.md](NOTICE.md) for full attribution.
+Built on top of five open-source projects: [Impeccable](https://github.com/pbakaus/impeccable), [Emil Kowalski Design Skill](https://emilkowal.ski/skill), [Taste Skill](https://github.com/Leonxlnx/taste-skill), [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill), and [Design Motion Principles](https://github.com/kylezantos/design-motion-principles). See [NOTICE.md](NOTICE.md) for full attribution.
 
-## Installation
+## Install
 
-Copy the `.claude/skills/design/` folder into your project:
+SuperDesign is distributed as a Claude Code plugin. Install it via the plugin marketplace:
 
-```bash
-# Clone and copy the skill into your project
-git clone https://github.com/anthropics/design-plugin.git /tmp/design-plugin
-cp -r /tmp/design-plugin/.claude/skills/design your-project/.claude/skills/design
-rm -rf /tmp/design-plugin
+```
+/plugin marketplace add <owner>/superdesign
+/plugin install superdesign@superdesign-marketplace
 ```
 
-Or clone this repository directly and open it in Claude Code.
+Replace `<owner>` with the GitHub org/user hosting this repo. The `marketplace.json` at the repo root lets you add the repo itself as a marketplace source.
+
+Alternatively, clone the repo into your project's plugin search path.
 
 No `npm install` or `pip install` required. All scripts use standard library only.
 
 ## Quick Start
 
-Once installed, use `/design` commands in Claude Code:
+Once installed, invoke with the plugin namespace:
 
 ```
-/design craft          Build a distinctive interface from scratch
-/design shape          Plan UX/UI with structured discovery
-/design audit          Audit accessibility, performance, theming, responsive, anti-patterns
-/design search query   Search 161 product types, 67 styles, 57 font pairings
-/design style          Apply style presets (minimalist, brutalist, soft)
-/design system         Generate a complete design token system
-/design brand          Create brand voice, identity, and messaging
-/design logo           Generate logos (55+ styles)
-/design slides         Create strategic HTML presentations
-/design ui             Build with shadcn/ui + Tailwind CSS
+/superdesign:design teach         Set up your project's design context (run first)
+/superdesign:design system        Generate a complete design token system (web/iOS/cross)
+/superdesign:design craft         Build a distinctive interface from scratch
+/superdesign:design shape         Plan UX/UI with structured discovery before code
+/superdesign:design audit         Accessibility, performance, theming, anti-patterns, motion gaps
+/superdesign:design animate       Add purposeful motion with designer-weighting (Emil/Jakub/Jhey)
+/superdesign:design search query  BM25 search across 161 products, 67 styles, 57 fonts, and more
 ```
-
-Run `/design teach` first to set up your project's design context.
 
 ## All Commands
 
 | Category | Commands |
 |---|---|
-| Core Design | `craft`, `shape`, `teach`, `extract`, `search` |
-| Review & Quality | `audit`, `critique`, `polish` |
+| Foundational | `system`, `teach`, `shape`, `extract` |
+| Craft | `craft` |
+| Review & Quality | `audit`, `critique`, `polish`, `redesign` |
 | Targeted Refinement | `animate`, `typeset`, `colorize`, `layout`, `clarify` |
-| Intensity | `bolder`, `quieter`, `distill`, `overdrive`, `delight` |
+| Intensity Modifiers | `bolder`, `quieter`, `distill`, `overdrive`, `delight` |
 | Production | `harden`, `optimize`, `adapt` |
-| Style & System | `style`, `redesign`, `system` |
 | Brand & Assets | `brand`, `logo`, `cip`, `banner`, `slides` |
-| UI Implementation | `ui` |
+| Utility | `search` |
+
+All commands accept `--platform web|ios|cross` (or infer from project).
 
 ## What's Inside
 
-- **SKILL.md** -- main skill definition with 30 commands and design guidelines
-- **data/** -- CSV databases for BM25 search (styles, colors, typography, products, UX guidelines, 16 framework-specific guides)
-- **references/** -- 90+ deep reference documents on typography, color, spatial design, motion, interaction, responsive design, brand systems, design tokens, and more
-- **scripts/** -- BM25 search engine (Python), design system generator, anti-pattern detector (Node.js)
-- **templates/** -- starter templates for brand guidelines
+- **`skills/design/SKILL.md`** — main skill definition with 22+ commands and design guidelines
+- **`skills/design/data/`** — CSV databases for BM25 search (161 products, 67 styles, 161 colors, 57 fonts, 99 UX guidelines, 25 chart types, 15 tech stacks)
+- **`skills/design/references/web/`** — typography, color, spatial, motion, interaction, responsive, style presets
+- **`skills/design/references/web/motion/`** — designer perspectives (Emil Kowalski, Jakub Krehel, Jhey Tompkins), audit workflow, motion gap analysis
+- **`skills/design/references/ios/`** — 19 HIG-sourced refs covering every iOS subsystem (color, layout, materials, motion, gestures, haptics, controls, navigation, modals, toolbar, icons, accessibility, ui-writing, first-run-states, ambient-surfaces, style-families, ipad, non-iphone-platforms)
+- **`skills/design/scripts/`** — BM25 search engine (Python), design system generator (Python), anti-pattern detector (Node.js)
+- **`skills/design/templates/`** — starter templates (iOS SwiftUI theme: Color, Typography, Spacing, Motion, Haptics; web CSS/Tailwind/shadcn)
+
+## Optional: designlib MCP
+
+For authoritative style/palette/font/domain tokens across web + iOS, connect the designlib MCP server:
+
+```
+claude mcp add --transport http designlib https://designlib-production.up.railway.app/mcp
+```
+
+Without it, the plugin falls back to the local CSV databases (still covers 161 products × 67 styles × 57 fonts).
 
 ## License
 

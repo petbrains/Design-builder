@@ -1,0 +1,20 @@
+{
+  "name": "superdesign-marketplace",
+  "owner": {
+    "name": "Roman Pluzhnikov",
+    "email": "pluzhnikov137@gmail.com"
+  },
+  "metadata": {
+    "description": "SuperDesign plugin marketplace — production-grade design tooling for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "superdesign",
+      "source": "./",
+      "description": "Unified design skill for web + iOS with 22+ commands, designer motion perspectives, iOS HIG refs, BM25 search, and anti-pattern detection",
+      "category": "design",
+      "tags": ["design-system", "ui", "ux", "web", "ios", "motion", "figma"]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "superdesign",
+  "version": "1.0.0",
+  "description": "Unified design skill for web + iOS. Distinctive production-grade interfaces, platform-aware design-system generation, 22+ commands across the full design lifecycle — UX planning, token generation, craft, audit, polish, brand, assets. Backed by BM25 search, iOS HIG references, designer motion perspectives (Emil/Jakub/Jhey), and anti-pattern detection.",
+  "author": {
+    "name": "Roman Pluzhnikov",
+    "email": "pluzhnikov137@gmail.com"
+  },
+  "homepage": "https://github.com/pluzhnikov/superdesign",
+  "repository": "https://github.com/pluzhnikov/superdesign",
+  "license": "MIT",
+  "keywords": [
+    "design",
+    "design-system",
+    "ui",
+    "ux",
+    "web",
+    "ios",
+    "motion",
+    "typography",
+    "color",
+    "figma",
+    "tailwind",
+    "shadcn",
+    "swiftui",
+    "hig",
+    "accessibility",
+    "anti-patterns"
+  ]
+}
