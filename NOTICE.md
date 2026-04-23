@@ -1,6 +1,6 @@
 # Attribution & Notices
 
-This unified design plugin combines work from four open-source projects. Each contributor's work is credited below.
+This unified design plugin combines work from five open-source projects. Each contributor's work is credited below.
 
 ## Source Projects
 
@@ -28,6 +28,17 @@ This unified design plugin combines work from four open-source projects. Each co
 - **License**: MIT
 - **Contribution**: BM25 search engine over CSV databases, 161 product type rules, 67 UI styles, 161 color palettes, 57 font pairings, 99 UX guidelines, 25 chart types, 15 tech stack guides, brand management system, design token architecture, logo/CIP generation, slide creation, banner design, UI styling (shadcn/Tailwind), CLI installer
 - **Files**: data/*.csv, data/stacks/*.csv, scripts/search.py, scripts/core.py, scripts/design_system.py, references/brand/*, references/design-system/*, references/design/*, references/slides/*, references/ui-styling/*, templates/*
+
+### Design Motion Principles (Kyle Zantos)
+- **Repository**: https://github.com/kylezantos/design-motion-principles
+- **License**: MIT
+- **Contribution**: Per-designer motion audit framework with context-aware weighting (Emil Kowalski, Jakub Krehel, Jhey Tompkins perspectives), Motion Gap Analysis workflow for finding missing animations, enter/exit animation recipes, per-designer anti-pattern catalogs, audit report template with designer sections
+- **Files**: references/web/motion/emil-kowalski.md, references/web/motion/jakub-krehel.md, references/web/motion/jhey-tompkins.md, references/web/motion/audit-checklist.md, references/web/motion/motion-gaps.md, references/web/motion/common-mistakes.md, references/web/motion/accessibility.md (expanded), references/web/motion/performance.md, references/web/motion/technical-principles.md, references/web/motion/output-format.md, routing additions in references/web/motion-design.md
+
+Motion principles synthesize work from:
+- **Emil Kowalski** — [emilkowal.ski](https://emilkowal.ski), [animations.dev](https://animations.dev), [Sonner](https://sonner.emilkowal.ski), [Vaul](https://vaul.emilkowal.ski)
+- **Jakub Krehel** — [jakub.kr](https://jakub.kr)
+- **Jhey Tompkins** — [jhey.dev](https://jhey.dev), [@jh3yy](https://twitter.com/jh3yy)
 
 ## License
 
