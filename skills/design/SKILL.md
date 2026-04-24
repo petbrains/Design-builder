@@ -249,15 +249,9 @@ Commit to a cohesive palette. Dominant colors with sharp accents outperform timi
 
 Focus on high-impact moments: one well-orchestrated page load > scattered micro-interactions.
 
-Cross-cutting principles: **frequency rule** (Emil — high-frequency interactions need less or no animation; keyboard-initiated never animates) and the **golden rule** (Jakub — "the best animation is that which goes unnoticed"). Pick designer weighting (Emil/Jakub/Jhey) by project type — see mapping table in `motion-design.md`.
+Cross-cutting principles live in `references/web/motion-design.md` (hub) and `references/web/motion/` (designer lenses, audit workflow). On iOS see `references/ios/motion.md` (springs > curves, scope `.animation()` to value, Reduce Motion = substitute not remove).
 
-**Web** → `references/web/motion-design.md` (hub: duration, easing, springs, perceived performance) + `references/web/motion/` (designer lenses + audit workflow)
-**iOS** → `references/ios/motion.md` (springs > curves, scope `.animation()` to value, Reduce Motion = substitute not remove, Liquid Glass morphs)
-
-**Designer perspectives (web):** `references/web/motion/` — Emil (restraint/speed), Jakub (production polish), Jhey (playful experimentation), plus audit checklist, motion gap analysis, enter/exit recipes.
-
-**DO:** exponential easing (ease-out-quart/quint/expo); springs for drag/gesture; `prefers-reduced-motion` / `accessibilityReduceMotion` always honored.
-**DON'T:** animate layout properties (width, height, padding); bounce/elastic easing; animate keyboard-initiated actions.
+For motion audits and designer-lens reports, `/design audit` routes motion findings to `motion-auditor` (Claude Code) or runs that logic inline (Cursor) — see `agents/motion-auditor.md` for the full checklist.
 
 ### Interaction
 
