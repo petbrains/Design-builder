@@ -260,10 +260,7 @@ Detail → `references/ios/haptics.md`.
 
 ### UX Writing
 
-**Web/general** → `references/ux-writing.md`
-**iOS (Apple-sourced)** → `references/ios/ui-writing.md`
-
-**DO:** make every word earn its place. **DON'T:** repeat visible information.
+Web → `references/ux-writing.md` · iOS → `references/ios/ui-writing.md`.
 
 ## Anti-Patterns (The AI Slop Test)
 
