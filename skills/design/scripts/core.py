@@ -25,16 +25,6 @@ CSV_CONFIG = {
         "search_cols": ["Product Type", "Notes"],
         "output_cols": ["Product Type", "Primary", "On Primary", "Secondary", "On Secondary", "Accent", "On Accent", "Background", "Foreground", "Card", "Card Foreground", "Muted", "Muted Foreground", "Border", "Destructive", "On Destructive", "Ring", "Notes"]
     },
-    "chart": {
-        "file": "charts.csv",
-        "search_cols": ["Data Type", "Keywords", "Best Chart Type", "When to Use", "When NOT to Use", "Accessibility Notes"],
-        "output_cols": ["Data Type", "Keywords", "Best Chart Type", "Secondary Options", "When to Use", "When NOT to Use", "Data Volume Threshold", "Color Guidance", "Accessibility Grade", "Accessibility Notes", "A11y Fallback", "Library Recommendation", "Interactive Level"]
-    },
-    "landing": {
-        "file": "landing.csv",
-        "search_cols": ["Pattern Name", "Keywords", "Conversion Optimization", "Section Order"],
-        "output_cols": ["Pattern Name", "Keywords", "Section Order", "Primary CTA Placement", "Color Strategy", "Conversion Optimization"]
-    },
     "product": {
         "file": "products.csv",
         "search_cols": ["Product Type", "Keywords", "Primary Style Recommendation", "Key Considerations"],
@@ -49,11 +39,6 @@ CSV_CONFIG = {
         "file": "typography.csv",
         "search_cols": ["Font Pairing Name", "Category", "Mood/Style Keywords", "Best For", "Heading Font", "Body Font"],
         "output_cols": ["Font Pairing Name", "Category", "Heading Font", "Body Font", "Mood/Style Keywords", "Best For", "Google Fonts URL", "CSS Import", "Tailwind Config", "Notes"]
-    },
-    "icons": {
-        "file": "icons.csv",
-        "search_cols": ["Category", "Icon Name", "Keywords", "Best For"],
-        "output_cols": ["Category", "Icon Name", "Keywords", "Library", "Import Code", "Usage", "Best For", "Style"]
     },
     "react": {
         "file": "react-performance.csv",

@@ -1,6 +1,6 @@
 # Attribution & Notices
 
-This unified design plugin combines work from five open-source projects. Each contributor's work is credited below.
+This unified design plugin combines work from five open-source projects plus the official Figma MCP Server Guide. Each contributor's work is credited below.
 
 ## Source Projects
 
@@ -39,6 +39,12 @@ Motion principles synthesize work from:
 - **Emil Kowalski** — [emilkowal.ski](https://emilkowal.ski), [animations.dev](https://animations.dev), [Sonner](https://sonner.emilkowal.ski), [Vaul](https://vaul.emilkowal.ski)
 - **Jakub Krehel** — [jakub.kr](https://jakub.kr)
 - **Jhey Tompkins** — [jhey.dev](https://jhey.dev), [@jh3yy](https://twitter.com/jh3yy)
+
+### Figma MCP Server Guide (Figma Inc.)
+- **Repository**: https://github.com/figma/mcp-server-guide
+- **License / Terms**: Figma Developer Terms (Beta). Rate limits apply: Starter / View / Collab seats are capped at 6 write tool calls per month; Dev / Full seats on Professional, Organization, or Enterprise plans follow per-minute limits (Tier 1 REST API parity). Code Connect features additionally require an Organization or Enterprise Figma plan.
+- **Contribution**: Seven skills covering the Figma MCP workflow — Plugin API wrapper (`figma-use`), design-system build (`generate-library`), screen assembly (`generate-design`), Figma-to-code implementation (`implement-design`), blank file creation (`create-new-file`), project-level rule generation (`design-system-rules`), and Code Connect template authoring (`figma-code-connect`, excluded from this release). Plus the steering doc for batch Code Connect mapping via `send_code_connect_mappings`.
+- **Files**: `skills/figma-use/` (top-level), `skills/design/references/figma/generate-library/`, `skills/design/references/figma/generate-design/`, `skills/design/references/figma/implement-design/`, `skills/design/references/figma/create-new-file/`, `skills/design/references/figma/design-system-rules/`, `skills/design/references/figma/code-connect-batch.md`
 
 ## License
 

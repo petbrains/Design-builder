@@ -16,7 +16,7 @@ When any `/design` command needs tokens, resolve in this order:
 
 1. **Project tokens** — `.impeccable.md`, existing `tailwind.config`, `tokens.css`, `AccentColor.colorset`, or other in-repo design system
 2. **designlib MCP** — if tool list contains `mcp__*designlib*` or similar, prefer it for styles/palettes/fonts/domain picks. Always pass `platform="web"` or `platform="ios"` explicitly.
-3. **Local CSV** (`data/`, `scripts/search.py`) — covers UX guidelines (99), charts (25), landing patterns, icons, tech-stack specifics, anti-patterns — things designlib does NOT cover
+3. **Local CSV** (`data/`, `scripts/search.py`) — UX guidelines (99), tech-stack specifics, react-performance, ui-reasoning, app-interface, anti-patterns. *(Charts, landing patterns, icons are now served by designlib MCP — see Tools table below.)*
 4. **Free generation** — last resort; if you reach this step, note explicitly in output: *"no authoritative source, generated freely"*
 
 ## Setup check
@@ -94,7 +94,8 @@ Responses >25 000 chars are truncated with `meta.truncated=true`. Only happens o
 
 | Need | Use |
 |---|---|
-| Web UX guidelines, charts, landing patterns, icons, anti-patterns | local CSV (`scripts/search.py`) |
+| Web UX guidelines, tech-stack specifics, anti-patterns | local CSV (`scripts/search.py`) |
+| Charts, landing patterns, icons | **designlib MCP** (`list_chart_types` / `list_landing_patterns` / `list_icons`) |
 | iOS-native HIG details (materials, haptics, gestures, Liquid Glass specifics) | `references/ios/` |
 | Brand identity, logos, CIP, slides, banners | `references/brand/`, `references/design/`, `references/slides/` |
 | Tokens for a concrete product domain/platform | **designlib MCP** (this doc) |
