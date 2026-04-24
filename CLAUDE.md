@@ -8,7 +8,7 @@ Plugin manifest lives at `.claude-plugin/plugin.json`. The skill is at `skills/d
 
 - `.claude-plugin/plugin.json` — Claude Code manifest (name, version, author, keywords)
 - `.claude-plugin/marketplace.json` — single-plugin marketplace manifest (so the repo itself is installable as a marketplace source)
-- `plugin.json` — **Cursor manifest** (points at the same `skills/` and `.mcp.json`)
+- `.cursor-plugin/plugin.json` — **Cursor manifest** (points at the same `skills/` and `.mcp.json`)
 - `.mcp.json` — shared MCP server config (designlib + figma), read by both CC and Cursor
 - `agents/` — **6 Claude Code sub-agents** (`design-auditor`, `design-critic`, `motion-auditor`, `design-system-architect`, `brand-agent`, `polish-fixer`). CC-only; Cursor runs the same logic inline through SKILL.md.
 - `skills/design/SKILL.md` — main skill: three-layer architecture, agent-delegation block, 5 lifecycle pipelines, 22+ atomic commands, filters
