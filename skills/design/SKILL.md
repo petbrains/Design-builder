@@ -36,6 +36,23 @@ SuperDesign is a three-layer system. Every command — whether called standalone
 
 Full diagram + extension points: [`references/architecture.md`](references/architecture.md).
 
+## Agent delegation (Claude Code only)
+
+Six sub-agents live in `agents/`. When the Agent tool is available, the following commands delegate to them instead of running their full logic inline:
+
+| Trigger | Sub-agent |
+|---|---|
+| `/design audit`, `/design review` step 1 | `design-auditor` |
+| `/design critique`, `/design review` step 2 | `design-critic` |
+| `/design audit` motion findings | `motion-auditor` |
+| `/design system`, `/design start` step 2 | `design-system-architect` |
+| `/design brand`, `/design logo`, `/design cip`, `/design banner`, `/design slides` | `brand-agent` |
+| `/design polish --fix`, `/design review` step 3 | `polish-fixer` |
+
+Sub-agents run in an isolated context, load their own references, and return a compact structured result with a `layer2_checklist`. They do not call each other — sequential work is orchestrated by pipelines here in SKILL.md.
+
+**If the Agent tool is unavailable** (Cursor or any other environment without Claude Code sub-agents), every atomic command still works: each command's section below documents the inline fallback, which reads the same references the agent would have loaded. Behaviour is identical; only context isolation is absent.
+
 ---
 
 # Layer 1: Knowledge Base — where we get facts
