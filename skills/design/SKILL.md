@@ -252,10 +252,7 @@ Web detail → `references/web/interaction-design.md` · iOS detail → `referen
 
 ### Responsive (web)
 
-→ `references/web/responsive-design.md`
-
-**DO:** container queries for components; adapt interface per context.
-**DON'T:** hide critical functionality on mobile.
+Detail → `references/web/responsive-design.md`.
 
 ### Haptics (iOS)
 

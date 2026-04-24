@@ -1,5 +1,10 @@
 # Responsive Design
 
+## Responsive DO/DON'T — moved from SKILL.md in v1.2
+
+**DO:** container queries for components; adapt interface per context.
+**DON'T:** hide critical functionality on mobile.
+
 ## Mobile-First: Write It Right
 
 Start with base styles for mobile, use `min-width` queries to layer complexity. Desktop-first (`max-width`) means mobile loads unnecessary styles first.
