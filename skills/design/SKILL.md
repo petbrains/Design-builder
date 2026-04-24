@@ -236,10 +236,7 @@ Full web/iOS color DO/DON'T + LILA BAN detail: see refs above. BAN 3 in Absolute
 
 ### Layout & Space
 
-**Web** → `references/web/spatial-design.md` (4pt scale, `gap` > margins, container queries, `min-h-[100dvh]`)
-**iOS** → `references/ios/layout.md` (safe areas, size classes, readable content, layout margins, Dynamic Type, iPadOS 26 windowing)
-
-**DO NOT:** wrap everything in cards; nest cards in cards; identical 3-column card grids; center everything; use same spacing everywhere.
+Web detail → `references/web/spatial-design.md` · iOS detail → `references/ios/layout.md`.
 
 ### Motion
 
