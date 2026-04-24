@@ -1,5 +1,19 @@
 # Typography
 
+## Font selection procedure — moved from SKILL.md in v1.2
+
+Choose fonts that are beautiful, unique, interesting. Pair a distinctive display font with a refined body font.
+
+**DO THIS BEFORE TYPING ANY FONT NAME:**
+1. Write 3 concrete brand voice words (NOT "modern" or "elegant").
+2. List 3 fonts you'd reach for. **Reject them all.**
+3. Browse catalogs (Google Fonts, Pangram Pangram, Future Fonts, ABC Dinamo, Klim, Velvetyne).
+4. Cross-check against designlib `list_font_pairs(platform=<web|ios>)` if available.
+
+**Banned reflex fonts:** Inter, DM Sans, DM Serif Display, Fraunces, Newsreader, Lora, Crimson, Playfair Display, Cormorant, Syne, IBM Plex, Space Mono, Space Grotesk, Outfit, Plus Jakarta Sans, Instrument Sans, Instrument Serif, Roboto, Arial, Open Sans.
+
+**DO NOT:** use monospace as shorthand for "technical"; use one font family alone; set long passages in uppercase.
+
 ## Classic Typography Principles
 
 ### Vertical Rhythm

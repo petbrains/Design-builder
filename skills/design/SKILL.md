@@ -222,20 +222,7 @@ Top-level summary follows; drill into references when working.
 
 ### Typography
 
-Choose fonts that are beautiful, unique, interesting. Pair a distinctive display font with a refined body font.
-
-**Web** → `references/web/typography.md` (modular scale, fluid clamp, OpenType, font loading)
-**iOS** → `references/ios/layout.md` § Dynamic Type (SF fallback, `relativeTo:`, AX5 floor)
-
-**Font selection procedure** — DO THIS BEFORE TYPING ANY FONT NAME:
-1. Write 3 concrete brand voice words (NOT "modern" or "elegant").
-2. List 3 fonts you'd reach for. **Reject them all.**
-3. Browse catalogs (Google Fonts, Pangram Pangram, Future Fonts, ABC Dinamo, Klim, Velvetyne).
-4. Cross-check against designlib `list_font_pairs(platform=<web|ios>)` if available.
-
-**Banned reflex fonts:** Inter, DM Sans, DM Serif Display, Fraunces, Newsreader, Lora, Crimson, Playfair Display, Cormorant, Syne, IBM Plex, Space Mono, Space Grotesk, Outfit, Plus Jakarta Sans, Instrument Sans, Instrument Serif, Roboto, Arial, Open Sans.
-
-**DO NOT:** use monospace as shorthand for "technical"; use one font family alone; set long passages in uppercase.
+Pair a distinctive display font with a refined body font. Full selection procedure, banned reflex fonts, and DO/DON'T details: `references/web/typography.md`. For iOS Dynamic Type: `references/ios/layout.md`.
 
 ### Color
 
