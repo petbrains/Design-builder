@@ -1,5 +1,11 @@
 # Color & Contrast
 
+## LILA BAN + DO/DON'T — moved from SKILL.md in v1.2
+
+**THE LILA BAN:** purple/blue AI aesthetic is BANNED. No purple button glows, no neon gradients.
+
+**DO NOT:** gray text on colored backgrounds; pure black (#000) / pure white (#fff); cyan-on-dark; purple-to-blue gradients; dark mode with glowing accents as default.
+
 ## Color rules (web) — moved from SKILL.md in v1.2
 
 **Web core rules** → `references/web/color-and-contrast.md`

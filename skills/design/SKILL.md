@@ -231,14 +231,8 @@ Commit to a cohesive palette. Dominant colors with sharp accents outperform timi
 **Web core rules** → `references/web/color-and-contrast.md`
 
 **iOS core rules** → `references/ios/color.md`
-- Prefer semantic `Color(.label)` / `Color(.systemBackground)` for chrome
-- Brand via `AccentColor.colorset` + `.tint(.accentColor)`
-- Dark/light/high-contrast variants in asset catalog
-- iOS 26: `.glassEffect(.regular.tint(...))` for primary actions on glass; push brand into content layer otherwise
 
-**THE LILA BAN:** purple/blue AI aesthetic is BANNED. No purple button glows, no neon gradients.
-
-**DO NOT:** gray text on colored backgrounds; pure black (#000) / pure white (#fff); cyan-on-dark; purple-to-blue gradients; dark mode with glowing accents as default.
+Full web/iOS color DO/DON'T + LILA BAN detail: see refs above. BAN 3 in Absolute Bans captures the hard rule.
 
 ### Layout & Space
 

@@ -6,6 +6,13 @@ platform: ios
 
 # iOS color system reference (iOS 18 & iOS 26)
 
+## iOS color rules — moved from SKILL.md in v1.2
+
+- Prefer semantic `Color(.label)` / `Color(.systemBackground)` for chrome
+- Brand via `AccentColor.colorset` + `.tint(.accentColor)`
+- Dark/light/high-contrast variants in asset catalog
+- iOS 26: `.glassEffect(.regular.tint(...))` for primary actions on glass; push brand into content layer otherwise
+
 A dense, scannable developer reference for Apple's color system on iOS. Covers UIKit and SwiftUI APIs on iOS 18, plus Liquid Glass additions in iOS 26. Use it to pick the right semantic color, understand dynamic resolution, wire up asset catalogs, meet WCAG contrast, and adopt Liquid Glass correctly.
 
 **BLUF:** Prefer semantic colors (`label`, `systemBackground`, `secondarySystemGroupedBackground`) over hard-coded RGB; set your brand via the `AccentColor` asset and `.tint(_:)`; let dynamic `UIColor`/`Color` handle light/dark/high-contrast/elevation; never use pure `.black`/`.white` for chrome; on iOS 26 push brand color into the content layer and reserve `.glassEffect(.regular.tint(…))` for primary actions on glass.
