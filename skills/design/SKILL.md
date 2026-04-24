@@ -299,23 +299,6 @@ If you showed this interface to someone and said "AI made this," would they beli
 **BAN 3:** AI color palette — cyan-on-dark, purple-to-blue gradients, neon accents on dark backgrounds
 **BAN 4:** 3-column card layouts — generic "3 equal cards horizontally" feature rows. Use 2-column zig-zag, asymmetric grid, or horizontal scroll.
 
-### Visual Tells to Avoid
-- Glassmorphism everywhere (except intentional on iOS 26 Liquid Glass chrome)
-- Sparklines as decoration (tiny charts that convey nothing)
-- Rounded rectangles with generic drop shadows
-- Large icons with rounded corners above every heading
-- Pure black (#000) / pure white (#fff)
-- Neon/outer glows, oversaturated accents
-- Gradient text for headers, custom mouse cursors
-
-### Content Tells to Avoid
-- Generic names ("John Doe", "Jane Smith") — use creative realistic names
-- Generic avatars (egg SVGs) — styled placeholders
-- Fake round numbers (99.99%, 50%) — use organic data (47.2%)
-- Startup slop names ("Acme", "Nexus", "SmartFlow")
-- AI copywriting clichés ("Elevate", "Seamless", "Unleash", "Next-Gen")
-- Emojis in code/markup — use SVG icons (Phosphor, Radix) or SF Symbols on iOS
-
 ### Technical Rules
 - Only animate `transform` and `opacity` (GPU-accelerated) on web
 - On iOS: `.animation()` scoped to value; Reduce Motion = substitute
@@ -406,7 +389,11 @@ Technical quality checks across 5 dimensions (a11y, perf, responsive, theming, a
 Used inside `/design review` step 1.
 
 ### `/design critique [--platform ...]`
-UX evaluation: Nielsen's heuristics scoring · AI slop detection · persona-based testing · two-pass (LLM review + automated detection) merged. Used inside `/design refine` and `/design review`.
+UX evaluation: Nielsen heuristics scoring, AI-slop detection, persona walkthroughs.
+
+**Routing:** If Agent tool available → delegate to `design-critic`. Otherwise execute inline per `agents/design-critic.md`. Output is identical.
+
+Used inside `/design refine` and `/design review`.
 
 ### `/design polish [--platform ...]`
 Final quality pass: alignment, spacing, consistency, typography, color, interaction states, micro-interactions, copy, icons, forms, edge cases, responsive (web) / Dynamic Type + Reduce Motion (iOS). Used inside `/design refine` and `/design review` (with `--fix`).
