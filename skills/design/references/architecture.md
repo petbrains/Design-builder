@@ -43,7 +43,7 @@ Silently skipping a filter is the single most common way this skill produces "AI
 
 ### Layer 1 — Knowledge Base
 
-Provides **facts**: tokens, palettes, font pairings, component references, HIG rules, BM25 search over UX guidelines / icons / charts / landing patterns. Resolution order is fixed (project → MCP → CSV → HIG refs → free). See [`SKILL.md` § Layer 1](../SKILL.md#layer-1-knowledge-base--where-we-get-facts) for the full sourcing protocol.
+Provides **facts**: tokens, palettes, font pairings, component references, HIG rules; MCP-served charts / landing patterns / icons; BM25 search over local UX guidelines, tech-stack specifics, anti-patterns. Resolution order is fixed (project → MCP → CSV → HIG refs → free). See [`SKILL.md` § Layer 1](../SKILL.md#layer-1-knowledge-base--where-we-get-facts) for the full sourcing protocol.
 
 ### Layer 2 — Design Filters
 

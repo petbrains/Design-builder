@@ -52,6 +52,11 @@ Every pipeline obeys the same rules:
 
 **Pre-check:** design system exists (tokens committed, `.impeccable.md` has Design Context). If not, suggest running `start` first.
 
+**Entry variants:**
+- **Code-first (default)** — user wants working code built from scratch.
+- **Figma-URL entry** — user provides `figma.com/design/:fileKey/...?node-id=X-Y`. Route via [`references/figma/README.md`](figma/README.md) — `ios-swiftui.md` for iOS, `implement-design/` for web. The Figma frame acts as the page-level spec; steps 2–5 still apply post-implementation.
+- **Figma-output variant of `craft`** — user wants the screen built **in Figma** using the published DS, not in code. Routes to `references/figma/generate-design/` + `skills/figma-use/`. Skip steps 2–5 (they target code).
+
 **Steps:**
 
 1. `craft [--platform]` — build the interface from scratch using project tokens. Gathers page-level context, makes design decisions, emits working code.
@@ -140,6 +145,7 @@ Every pipeline obeys the same rules:
 3. `adapt [--platform]` — responsive/cross-platform.
    - **Web:** per-breakpoint strategy
    - **iOS:** iPhone ↔ iPad size classes ↔ Mac Catalyst ↔ watchOS/visionOS
+4. `code-connect` *(optional, Figma MCP available + Org/Enterprise Figma plan + published DS in Figma)* — batch-map the codebase's design-system components to their Figma counterparts via `send_code_connect_mappings`. Load [`references/figma/code-connect-batch.md`](figma/code-connect-batch.md). Skipped silently if any prerequisite is missing.
 
 <!-- PIPELINE-STEP-EXTENSION: ship -->
 

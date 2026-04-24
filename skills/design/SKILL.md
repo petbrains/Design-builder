@@ -48,9 +48,10 @@ When any command needs colors / typography / style tokens, resolve in this order
 2. **designlib MCP** (if connected: tool list contains `mcp__*designlib*` or `mcp__*get_domain*`)
    - Styles · palettes · font pairs · domain recommendations — **always pass `platform="web"` or `platform="ios"` explicitly**
    - Full guide: [`references/designlib-mcp.md`](references/designlib-mcp.md)
-3. **Local CSV** ([`scripts/search.py`](scripts/search.py)) — UX guidelines, charts, landing patterns, icons, anti-patterns (not covered by designlib)
-4. **iOS HIG references** ([`references/ios/`](references/ios/README.md)) — Apple-specific rules that designlib tokens must be wired through
-5. **Free generation** — last resort; note explicitly: *"no authoritative source, generated freely"*
+3. **Figma MCP** (if connected: tool list contains `mcp__*figma*__*`) — design context, variables, screenshots, Code Connect map for any user-provided Figma URL. Route via [`references/figma/README.md`](references/figma/README.md).
+4. **Local CSV** ([`scripts/search.py`](scripts/search.py)) — UX guidelines, tech-stack specifics, react-performance, ui-reasoning, app-interface, anti-patterns. *Charts, landing patterns, and icons are served by designlib MCP (`list_chart_types` / `list_landing_patterns` / `list_icons`) — no longer local.*
+5. **iOS HIG references** ([`references/ios/`](references/ios/README.md)) — Apple-specific rules that designlib tokens must be wired through
+6. **Free generation** — last resort; note explicitly: *"no authoritative source, generated freely"*
 
 If designlib is NOT connected and the user is starting a design system from scratch, tell them once:
 > *"designlib MCP is not connected. It gives authoritative style/palette/font tokens for web + iOS. Install: `claude mcp add --transport http designlib https://designlib-production.up.railway.app/mcp`. Proceeding with local CSV fallback."*
@@ -117,6 +118,19 @@ Design skills produce generic output without project context. Required minimum:
 |---|---|
 | [`references/ios/`](references/ios/README.md) | 18 HIG-sourced refs: color · layout · materials · motion · gestures · haptics · controls · navigation · modals · toolbar · icons · accessibility · ui-writing · first-run-states · ambient-surfaces · style-families · ipad · non-iphone-platforms |
 
+### Figma (when MCP available)
+| Path | Purpose |
+|---|---|
+| [`references/figma/README.md`](references/figma/README.md) | Routing hub — decides which sub-ref to load by user intent + platform |
+| [`references/figma/ios-swiftui.md`](references/figma/ios-swiftui.md) | Figma → iOS/SwiftUI: build, adapt, point-edit, token sync, variants → native state, asset pipeline, multi-device |
+| [`references/figma/implement-design/`](references/figma/implement-design/SKILL.md) | Figma → web code (generic) |
+| [`references/figma/generate-library/`](references/figma/generate-library/SKILL.md) | Build / update design system **in** Figma — variables, components, variants, docs |
+| [`references/figma/generate-design/`](references/figma/generate-design/SKILL.md) | Build screens **in** Figma from the published design system |
+| [`references/figma/create-new-file/`](references/figma/create-new-file/SKILL.md) | Create a blank Figma file |
+| [`references/figma/design-system-rules/`](references/figma/design-system-rules/SKILL.md) | Generate project-specific Figma-to-code rules |
+| [`references/figma/code-connect-batch.md`](references/figma/code-connect-batch.md) | Batch Code Connect mapping (used in `/design ship`) |
+| [`../../figma-use/`](../../figma-use/SKILL.md) | **Top-level skill** — mandatory prerequisite for every Figma write via `use_figma` |
+
 ### Brand & assets
 | Path | Purpose |
 |---|---|
@@ -127,7 +141,7 @@ Design skills produce generic output without project context. Required minimum:
 ### Data & scripts
 | Path | Purpose |
 |---|---|
-| [`data/`](data/) | CSV databases (161 products, 67 styles, 161 colors, 57 fonts, 99 UX guidelines, 25 charts, 15 tech stacks) |
+| [`data/`](data/) | CSV databases — guidelines & curated context (161 products, 67 styles, 161 colors, 57 fonts, 99 UX guidelines, 15 tech stacks, react-performance, ui-reasoning, app-interface). *Charts, landing patterns, icons live in designlib MCP.* |
 | [`scripts/search.py`](scripts/search.py) | BM25 search engine (`--platform web\|ios` flag) |
 | [`scripts/design_system.py`](scripts/design_system.py) | Design system generator (Master + Overrides pattern) — fallback when designlib MCP is offline |
 | [`scripts/detect-antipatterns.mjs`](scripts/detect-antipatterns.mjs) | Automated anti-pattern detector (30+ checks) |
@@ -361,6 +375,8 @@ Runs a structured interview → proposes 3 variations (style + palette + fonts +
 
 If designlib is offline → fall back to `scripts/search.py --platform <p> --design-system -p <name>`.
 
+**Figma branch (optional, additive).** If the Figma MCP (`mcp__*figma*__*`) is connected and the user wants the system materialized in Figma too, after local token emission load [`references/figma/generate-library/SKILL.md`](references/figma/generate-library/SKILL.md) + [`skills/figma-use/`](../../figma-use/SKILL.md) and build variables + core components (Button, Input, Card, Nav, Avatar, Badge, Modal, Tabs, Divider, Icon) in the user's Figma file. Local generation is base truth; Figma is a materialization, not a replacement. Requires Dev/Full seat for realistic call budgets.
+
 ### `/design teach`
 Write the Design Context section to `.impeccable.md`. Lightweight version of `/design system` — just context capture, no token emission. Used inside `/design start`.
 
@@ -377,6 +393,8 @@ Pull reusable components + design tokens from screenshots or existing interfaces
 Build a distinctive interface from scratch (with a design system already in place). Gathers page-level context → makes design decisions → implements working code. Used inside `/design make`.
 → *Web workflow:* [`references/web/craft.md`](references/web/craft.md)
 → *iOS:* load relevant `references/ios/*` based on surfaces being built (navigation, modals, toolbar, etc.)
+
+**Figma branch (when the user wants the screen in Figma, not code).** Load [`references/figma/generate-design/SKILL.md`](references/figma/generate-design/SKILL.md) + [`skills/figma-use/`](../../figma-use/SKILL.md). It discovers published DS components via `search_design_system`, imports them, and assembles the screen using Figma variables — no raw hex fills, no hardcoded sizes. Route via [`references/figma/README.md`](references/figma/README.md). For Figma URL → **code** implementation (the reverse), use `/design make`.
 
 ## 3. Review & Quality
 
@@ -463,7 +481,7 @@ Strategic HTML presentations with Chart.js, design tokens, copywriting formulas.
 
 ### `/design search [query] [--platform web|ios] [--domain ...] [--stack ...]`
 BM25 search across local CSV databases:
-- 161 products · 67 styles · 161 colors · 57 fonts · 99 UX guidelines · 25 charts · landing patterns · icons · anti-patterns
+- 161 products · 67 styles · 161 colors · 57 fonts · 99 UX guidelines · 15 tech stacks · anti-patterns
 
 ```bash
 python scripts/search.py "glassmorphism" --domain style --platform ios
@@ -471,7 +489,7 @@ python scripts/search.py "healthcare saas" --domain product --platform web
 python scripts/search.py "form validation" --stack swiftui
 ```
 
-**For authoritative style/palette/font tokens → use designlib MCP first** (see `references/designlib-mcp.md`). This CSV search complements designlib with UX guidelines, charts, landing patterns, icons, anti-patterns.
+**Tokens (styles/palettes/fonts), charts, landing patterns, and icons → designlib MCP** (see `references/designlib-mcp.md`). This CSV search complements MCP with UX guidelines, tech-stack specifics, and anti-patterns.
 
 ---
 
