@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "designlib": {
+      "type": "http",
+      "url": "https://designlib-production.up.railway.app/mcp"
+    },
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
+    }
+  }
+}
