@@ -19,6 +19,16 @@ Alternatively, clone the repo into your project's plugin search path.
 
 No `npm install` or `pip install` required. All scripts use standard library only.
 
+### Install in Cursor
+
+SuperDesign also runs in Cursor via the root `plugin.json`. Copy or clone the repo into Cursor's plugins directory; Cursor auto-discovers the manifest and loads `skills/design/` plus the shared `.mcp.json` (designlib + figma MCP servers).
+
+```
+git clone https://github.com/petbrains/superdesign.git ~/.cursor/plugins/superdesign
+```
+
+Sub-agents in `agents/` are Claude Code–only. In Cursor, each `/design` command runs inline in the main context — same logic, same references, same output.
+
 ## How it works — three-layer architecture
 
 ```
@@ -72,6 +82,8 @@ All commands accept `--platform web\|ios\|cross` (or infer from project).
 ## What's Inside
 
 - **`skills/design/SKILL.md`** — main skill definition: architecture, pipelines, atomic commands, filters
+- **`agents/`** — 6 Claude Code sub-agents (`design-auditor`, `design-critic`, `motion-auditor`, `design-system-architect`, `brand-agent`, `polish-fixer`) that own the heavy review and generation logic in isolated contexts
+- **`plugin.json`** + **`.mcp.json`** at repo root — Cursor manifest and shared MCP server config
 - **`skills/design/references/architecture.md`** — three-layer model + extension points
 - **`skills/design/references/pipelines.md`** — lifecycle pipeline runbooks
 - **`skills/design/data/`** — CSV databases (161 products, 67 styles, 161 colors, 57 fonts, 99 UX guidelines, 25 chart types, 15 tech stacks)
