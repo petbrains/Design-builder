@@ -1,5 +1,9 @@
 # UX Writing
 
+## UX Writing DO/DON'T — moved from SKILL.md in v1.2
+
+**DO:** make every word earn its place. **DON'T:** repeat visible information.
+
 ## The Button Label Problem
 
 **Never use "OK", "Submit", or "Yes/No".** These are lazy and ambiguous. Use specific verb + object patterns:

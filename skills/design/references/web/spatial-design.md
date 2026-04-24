@@ -1,5 +1,9 @@
 # Spatial Design
 
+## Layout DO/DON'T — moved from SKILL.md in v1.2
+
+**DO NOT:** wrap everything in cards; nest cards in cards; identical 3-column card grids; center everything; use same spacing everywhere.
+
 ## Spacing Systems
 
 ### Use 4pt Base, Not 8pt

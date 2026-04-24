@@ -36,6 +36,23 @@ SuperDesign is a three-layer system. Every command — whether called standalone
 
 Full diagram + extension points: [`references/architecture.md`](references/architecture.md).
 
+## Agent delegation (Claude Code only)
+
+Six sub-agents live in `agents/`. When the Agent tool is available, the following commands delegate to them instead of running their full logic inline:
+
+| Trigger | Sub-agent |
+|---|---|
+| `/design audit`, `/design review` step 1 | `design-auditor` |
+| `/design critique`, `/design review` step 2 | `design-critic` |
+| `/design audit` motion findings | `motion-auditor` |
+| `/design system`, `/design start` step 2 | `design-system-architect` |
+| `/design brand`, `/design logo`, `/design cip`, `/design banner`, `/design slides` | `brand-agent` |
+| `/design polish --fix`, `/design review` step 3 | `polish-fixer` |
+
+Sub-agents run in an isolated context, load their own references, and return a compact structured result with a `layer2_checklist`. They do not call each other — sequential work is orchestrated by pipelines here in SKILL.md.
+
+**If the Agent tool is unavailable** (Cursor or any other environment without Claude Code sub-agents), every atomic command still works: each command's section below documents the inline fallback, which reads the same references the agent would have loaded. Behaviour is identical; only context isolation is absent.
+
 ---
 
 # Layer 1: Knowledge Base — where we get facts
@@ -205,88 +222,45 @@ Top-level summary follows; drill into references when working.
 
 ### Typography
 
-Choose fonts that are beautiful, unique, interesting. Pair a distinctive display font with a refined body font.
-
-**Web** → `references/web/typography.md` (modular scale, fluid clamp, OpenType, font loading)
-**iOS** → `references/ios/layout.md` § Dynamic Type (SF fallback, `relativeTo:`, AX5 floor)
-
-**Font selection procedure** — DO THIS BEFORE TYPING ANY FONT NAME:
-1. Write 3 concrete brand voice words (NOT "modern" or "elegant").
-2. List 3 fonts you'd reach for. **Reject them all.**
-3. Browse catalogs (Google Fonts, Pangram Pangram, Future Fonts, ABC Dinamo, Klim, Velvetyne).
-4. Cross-check against designlib `list_font_pairs(platform=<web|ios>)` if available.
-
-**Banned reflex fonts:** Inter, DM Sans, DM Serif Display, Fraunces, Newsreader, Lora, Crimson, Playfair Display, Cormorant, Syne, IBM Plex, Space Mono, Space Grotesk, Outfit, Plus Jakarta Sans, Instrument Sans, Instrument Serif, Roboto, Arial, Open Sans.
-
-**DO NOT:** use monospace as shorthand for "technical"; use one font family alone; set long passages in uppercase.
+Pair a distinctive display font with a refined body font. Full selection procedure, banned reflex fonts, and DO/DON'T details: `references/web/typography.md`. For iOS Dynamic Type: `references/ios/layout.md`.
 
 ### Color
 
 Commit to a cohesive palette. Dominant colors with sharp accents outperform timid, evenly-distributed palettes.
 
 **Web core rules** → `references/web/color-and-contrast.md`
-- OKLCH not HSL. Reduce chroma near white/black. Tint neutrals toward brand hue.
-- 60-30-10 rule. Max 1 accent. Saturation <80%.
 
 **iOS core rules** → `references/ios/color.md`
-- Prefer semantic `Color(.label)` / `Color(.systemBackground)` for chrome
-- Brand via `AccentColor.colorset` + `.tint(.accentColor)`
-- Dark/light/high-contrast variants in asset catalog
-- iOS 26: `.glassEffect(.regular.tint(...))` for primary actions on glass; push brand into content layer otherwise
 
-**THE LILA BAN:** purple/blue AI aesthetic is BANNED. No purple button glows, no neon gradients.
-
-**DO NOT:** gray text on colored backgrounds; pure black (#000) / pure white (#fff); cyan-on-dark; purple-to-blue gradients; dark mode with glowing accents as default.
+Full web/iOS color DO/DON'T + LILA BAN detail: see refs above. BAN 3 in Absolute Bans captures the hard rule.
 
 ### Layout & Space
 
-**Web** → `references/web/spatial-design.md` (4pt scale, `gap` > margins, container queries, `min-h-[100dvh]`)
-**iOS** → `references/ios/layout.md` (safe areas, size classes, readable content, layout margins, Dynamic Type, iPadOS 26 windowing)
-
-**DO NOT:** wrap everything in cards; nest cards in cards; identical 3-column card grids; center everything; use same spacing everywhere.
+Web detail → `references/web/spatial-design.md` · iOS detail → `references/ios/layout.md`.
 
 ### Motion
 
 Focus on high-impact moments: one well-orchestrated page load > scattered micro-interactions.
 
-Cross-cutting principles: **frequency rule** (Emil — high-frequency interactions need less or no animation; keyboard-initiated never animates) and the **golden rule** (Jakub — "the best animation is that which goes unnoticed"). Pick designer weighting (Emil/Jakub/Jhey) by project type — see mapping table in `motion-design.md`.
+Cross-cutting principles live in `references/web/motion-design.md` (hub) and `references/web/motion/` (designer lenses, audit workflow). On iOS see `references/ios/motion.md` (springs > curves, scope `.animation()` to value, Reduce Motion = substitute not remove).
 
-**Web** → `references/web/motion-design.md` (hub: duration, easing, springs, perceived performance) + `references/web/motion/` (designer lenses + audit workflow)
-**iOS** → `references/ios/motion.md` (springs > curves, scope `.animation()` to value, Reduce Motion = substitute not remove, Liquid Glass morphs)
-
-**Designer perspectives (web):** `references/web/motion/` — Emil (restraint/speed), Jakub (production polish), Jhey (playful experimentation), plus audit checklist, motion gap analysis, enter/exit recipes.
-
-**DO:** exponential easing (ease-out-quart/quint/expo); springs for drag/gesture; `prefers-reduced-motion` / `accessibilityReduceMotion` always honored.
-**DON'T:** animate layout properties (width, height, padding); bounce/elastic easing; animate keyboard-initiated actions.
+For motion audits and designer-lens reports, `/design audit` routes motion findings to `motion-auditor` (Claude Code) or runs that logic inline (Cursor) — see `agents/motion-auditor.md` for the full checklist.
 
 ### Interaction
 
-**Web** → `references/web/interaction-design.md`
-**iOS** → `references/ios/gestures.md` + `references/ios/modals.md` + `references/ios/controls.md`
-
-**DO:** progressive disclosure; optimistic UI; empty states that teach; buttons with `scale(0.97)` on `:active`.
-**DON'T:** repeat information; make every button primary; animate from `scale(0)`.
+Web detail → `references/web/interaction-design.md` · iOS detail → `references/ios/gestures.md`, `modals.md`, `controls.md`.
 
 ### Responsive (web)
 
-→ `references/web/responsive-design.md`
-
-**DO:** container queries for components; adapt interface per context.
-**DON'T:** hide critical functionality on mobile.
+Detail → `references/web/responsive-design.md`.
 
 ### Haptics (iOS)
 
-→ `references/ios/haptics.md`
-
-**DO:** prefer SwiftUI `.sensoryFeedback` (iOS 17+); set haptic budget at interview time; rely on system controls for default feedback.
-**DON'T:** fire haptics more than ~5×/minute in normal use (haptic fatigue); duplicate system-provided haptics.
+Detail → `references/ios/haptics.md`.
 
 ### UX Writing
 
-**Web/general** → `references/ux-writing.md`
-**iOS (Apple-sourced)** → `references/ios/ui-writing.md`
-
-**DO:** make every word earn its place. **DON'T:** repeat visible information.
+Web → `references/ux-writing.md` · iOS → `references/ios/ui-writing.md`.
 
 ## Anti-Patterns (The AI Slop Test)
 
@@ -298,23 +272,6 @@ If you showed this interface to someone and said "AI made this," would they beli
 **BAN 2:** Gradient text — `background-clip: text` with gradient background
 **BAN 3:** AI color palette — cyan-on-dark, purple-to-blue gradients, neon accents on dark backgrounds
 **BAN 4:** 3-column card layouts — generic "3 equal cards horizontally" feature rows. Use 2-column zig-zag, asymmetric grid, or horizontal scroll.
-
-### Visual Tells to Avoid
-- Glassmorphism everywhere (except intentional on iOS 26 Liquid Glass chrome)
-- Sparklines as decoration (tiny charts that convey nothing)
-- Rounded rectangles with generic drop shadows
-- Large icons with rounded corners above every heading
-- Pure black (#000) / pure white (#fff)
-- Neon/outer glows, oversaturated accents
-- Gradient text for headers, custom mouse cursors
-
-### Content Tells to Avoid
-- Generic names ("John Doe", "Jane Smith") — use creative realistic names
-- Generic avatars (egg SVGs) — styled placeholders
-- Fake round numbers (99.99%, 50%) — use organic data (47.2%)
-- Startup slop names ("Acme", "Nexus", "SmartFlow")
-- AI copywriting clichés ("Elevate", "Seamless", "Unleash", "Next-Gen")
-- Emojis in code/markup — use SVG icons (Phosphor, Radix) or SF Symbols on iOS
 
 ### Technical Rules
 - Only animate `transform` and `opacity` (GPU-accelerated) on web
@@ -360,22 +317,15 @@ Commands are platform-aware — most accept `--platform web|ios|cross` or infer 
 ### `/design system [web|ios|cross]`
 **The main system-generation command. Everything else assumes a design system exists.** Used inside `/design start`.
 
-Runs a structured interview → proposes 3 variations (style + palette + fonts + motion intensity) → on pick, emits platform-specific tokens + markdown spec.
+Runs a structured interview → proposes 3 variations → on pick, emits platform-specific tokens + `design-system.md` spec.
 
 - **web** → `tokens.css` + `tailwind.config.*` + shadcn theme + `design-system.md`
-- **ios** → `Assets.xcassets/DesignSystem/*.colorset` + `Theme/Color+DesignSystem.swift` + `Typography.swift` + `Spacing.swift` + `Motion.swift` + optional `Haptics.swift` + `design-system.md`
-- **cross** → both, with aligned palette family + font tone
+- **ios** → xcassets + SwiftUI theme files + `design-system.md`
+- **cross** → both, aligned
 
-**Workflow:**
-1. [`references/system/interview.md`](references/system/interview.md) — question-by-question script
-2. Call designlib MCP: `list_domains` → `get_domain(platform=..., top_n=3)`
-3. Present 3 variations with differentiation hooks
-4. On pick → `get_style`/`get_palette`/`get_font_pair` for final tokens
-5. Emit via [`web-pipeline.md`](references/system/web-pipeline.md) or [`ios-pipeline.md`](references/system/ios-pipeline.md)
+**Routing:** If Agent tool available → delegate to `design-system-architect`. Otherwise execute inline per `agents/design-system-architect.md`. Interview, candidate generation, emission, and Figma materialization are identical.
 
-If designlib is offline → fall back to `scripts/search.py --platform <p> --design-system -p <name>`.
-
-**Figma branch (optional, additive).** If the Figma MCP (`mcp__*figma*__*`) is connected and the user wants the system materialized in Figma too, after local token emission load [`references/figma/generate-library/SKILL.md`](references/figma/generate-library/SKILL.md) + [`skills/figma-use/`](../../figma-use/SKILL.md) and build variables + core components (Button, Input, Card, Nav, Avatar, Badge, Modal, Tabs, Divider, Icon) in the user's Figma file. Local generation is base truth; Figma is a materialization, not a replacement. Requires Dev/Full seat for realistic call budgets.
+Offline fallback: `python scripts/design_system.py --platform <p>`.
 
 ### `/design teach`
 Write the Design Context section to `.impeccable.md`. Lightweight version of `/design system` — just context capture, no token emission. Used inside `/design start`.
@@ -399,18 +349,27 @@ Build a distinctive interface from scratch (with a design system already in plac
 ## 3. Review & Quality
 
 ### `/design audit [--platform ...]`
-Technical quality checks across 5 dimensions. Used inside `/design review`.
-- **Web:** accessibility (WCAG AA), performance (Core Web Vitals), theming, responsive, anti-patterns
-- **Web motion:** Motion Gap Analysis (conditional renders without AnimatePresence, ternary swaps, dynamic styles without transition) via `references/web/motion/motion-gaps.md` → systematic review via `motion/audit-checklist.md` → per-designer report via `motion/output-format.md`
-- **iOS:** Dynamic Type AX5, Reduce Motion, Increase Contrast, Increase Transparency, `.accessibilityLabel/.accessibilityValue` coverage, HIG deviations
+Technical quality checks across 5 dimensions (a11y, perf, responsive, theming, anti-patterns on web; Dynamic Type, Reduce Motion, Increase Contrast / Transparency, a11y labels, HIG on iOS). Motion gap analysis is handled by `motion-auditor`.
 
-Generates scored report with P0–P3 severity + prioritized fix plan.
+**Routing:** If the Agent tool is available (Claude Code), delegate to `design-auditor`. Otherwise (Cursor, other environments), execute inline by loading the same references listed in `agents/design-auditor.md` and following its dimensions and severity rubric. Output format is identical in both paths.
+
+Used inside `/design review` step 1.
 
 ### `/design critique [--platform ...]`
-UX evaluation: Nielsen's heuristics scoring · AI slop detection · persona-based testing · two-pass (LLM review + automated detection) merged. Used inside `/design refine` and `/design review`.
+UX evaluation: Nielsen heuristics scoring, AI-slop detection, persona walkthroughs.
+
+**Routing:** If Agent tool available → delegate to `design-critic`. Otherwise execute inline per `agents/design-critic.md`. Output is identical.
+
+Used inside `/design refine` and `/design review`.
 
 ### `/design polish [--platform ...]`
-Final quality pass: alignment, spacing, consistency, typography, color, interaction states, micro-interactions, copy, icons, forms, edge cases, responsive (web) / Dynamic Type + Reduce Motion (iOS). Used inside `/design refine` and `/design review` (with `--fix`).
+Final quality pass: alignment, spacing, consistency, typography, color, interaction states, micro-interactions, copy, icons, forms, edge cases, responsive (web) / Dynamic Type + Reduce Motion (iOS).
+
+**Routing for `--fix`:** If Agent tool available → delegate to `polish-fixer` with the audit report path. Otherwise execute inline per `agents/polish-fixer.md`. Output (diff summary + residuals) is identical.
+
+Without `--fix`, the command reports what it would change but does not edit; this narrative path stays in the main skill.
+
+Used inside `/design refine` and `/design review` (with `--fix`).
 
 ### `/design redesign [--platform ...]`
 Audit + fix existing projects. Scan for generic AI patterns → diagnose problems → targeted upgrades without full rewrite. *Shortcut:* internally behaves like `review` + targeted `refine`; usually prefer the full pipelines.
@@ -457,25 +416,15 @@ Responsive/cross-platform. Web: per-breakpoint strategy. iOS: iPhone ↔ iPad si
 
 These produce *artifacts*, not *lifecycle stages*. Call directly.
 
-### `/design brand`
-Brand voice, visual identity, messaging frameworks, asset management, consistency audit.
-→ [`references/brand/`](references/brand/)
+| Command | Purpose | Deep ref |
+|---|---|---|
+| `/design brand` | Brand voice, visual identity, messaging frameworks, consistency audit | `references/brand/` |
+| `/design logo` | Logos — 55+ styles, color psychology, industry guidance | `references/design/logo-design.md` |
+| `/design cip` | Corporate Identity Program — 50+ deliverables, mockups | `references/design/cip-design.md` |
+| `/design banner` | Banners for social, ads, web, print — 22 art-direction styles, multi-platform sizing | `references/design/banner-sizes-and-styles.md` |
+| `/design slides` | Strategic HTML presentations with Chart.js, design tokens, copywriting formulas | `references/slides/` |
 
-### `/design logo`
-Generate logos. 55+ styles, color psychology, industry-specific guidance.
-→ [`references/design/logo-design.md`](references/design/logo-design.md)
-
-### `/design cip`
-Corporate Identity Program. 50+ deliverables, mockup generation.
-→ [`references/design/cip-design.md`](references/design/cip-design.md)
-
-### `/design banner`
-Banners for social, ads, web, print. 22 art-direction styles, multi-platform sizing.
-→ [`references/design/banner-sizes-and-styles.md`](references/design/banner-sizes-and-styles.md)
-
-### `/design slides`
-Strategic HTML presentations with Chart.js, design tokens, copywriting formulas.
-→ [`references/slides/`](references/slides/)
+**Routing:** If Agent tool available → delegate to `brand-agent` with `deliverable` set. Otherwise execute inline per `agents/brand-agent.md`. Output is identical.
 
 ## 7. Search (standalone)
 

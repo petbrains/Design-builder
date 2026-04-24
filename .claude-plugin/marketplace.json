@@ -5,14 +5,14 @@
     "email": "pluzhnikov137@gmail.com"
   },
   "metadata": {
-    "description": "SuperDesign plugin marketplace — production-grade design tooling for Claude Code",
-    "version": "1.1.0"
+    "description": "SuperDesign plugin marketplace — production-grade design tooling for Claude Code (and Cursor)",
+    "version": "1.2.0"
   },
   "plugins": [
     {
       "name": "superdesign",
       "source": "./",
-      "description": "Unified design skill for web + iOS with 22+ commands, designer motion perspectives, iOS HIG refs, BM25 search, and anti-pattern detection",
+      "description": "Unified design skill for web + iOS with 22+ commands, 6 sub-agents, designer motion perspectives, iOS HIG refs, BM25 search, and anti-pattern detection. Claude Code + Cursor.",
       "category": "design",
       "tags": ["design-system", "ui", "ux", "web", "ios", "motion", "figma"]
     }

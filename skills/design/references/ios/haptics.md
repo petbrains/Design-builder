@@ -6,6 +6,11 @@ platform: ios
 
 # The complete iOS haptics reference for modern apps
 
+## Haptics DO/DON'T — moved from SKILL.md in v1.2
+
+**DO:** prefer SwiftUI `.sensoryFeedback` (iOS 17+); set haptic budget at interview time; rely on system controls for default feedback.
+**DON'T:** fire haptics more than ~5×/minute in normal use (haptic fatigue); duplicate system-provided haptics.
+
 Apple's haptic stack is a three-layer pyramid: **SwiftUI `sensoryFeedback`** (declarative, iOS 17+), **UIKit `UIFeedbackGenerator`** (imperative, iOS 10+), and **Core Haptics `CHHapticEngine`** (custom patterns, iOS 13+). Choosing correctly matters more than most developers realize — the Taptic Engine is a physical actuator the user *feels*, and misused haptics cause "haptic fatigue" so quickly that Apple's HIG explicitly warns against it. This reference consolidates every API, every semantic type, concrete examples from Apple's own apps, accessibility rules, and the anti-patterns you must avoid — targeted at iOS 17 through iOS 26 and cross-referenced across iPadOS, macOS, watchOS, and visionOS.
 
 The single most useful insight before you write any haptic code: **the system already plays the right haptic for standard controls**. `UISwitch`, `UISlider`, `UIPickerView`, pull-to-refresh, the keyboard, scroll rubber-banding — all of these are handled. Your job is to extend that vocabulary *consistently* for the handful of moments that are genuinely yours to decorate.

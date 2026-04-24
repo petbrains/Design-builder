@@ -3,6 +3,3 @@ design-system/
 .impeccable.md
 __pycache__/
 
-# Source bundles kept locally for reference — not shipped
-mcp-server-guide-main/
-figma-to-swiftui-skill-master/

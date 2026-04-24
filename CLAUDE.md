@@ -6,9 +6,12 @@ Plugin manifest lives at `.claude-plugin/plugin.json`. The skill is at `skills/d
 
 ## Structure
 
-- `.claude-plugin/plugin.json` — plugin manifest (name, version, author, keywords)
+- `.claude-plugin/plugin.json` — Claude Code manifest (name, version, author, keywords)
 - `.claude-plugin/marketplace.json` — single-plugin marketplace manifest (so the repo itself is installable as a marketplace source)
-- `skills/design/SKILL.md` — main skill: three-layer architecture, 5 lifecycle pipelines (start/make/refine/review/ship), 22+ atomic commands, filters
+- `.cursor-plugin/plugin.json` — **Cursor manifest** (points at the same `skills/` and `.mcp.json`)
+- `.mcp.json` — shared MCP server config (designlib + figma), read by both CC and Cursor
+- `agents/` — **6 Claude Code sub-agents** (`design-auditor`, `design-critic`, `motion-auditor`, `design-system-architect`, `brand-agent`, `polish-fixer`). CC-only; Cursor runs the same logic inline through SKILL.md.
+- `skills/design/SKILL.md` — main skill: three-layer architecture, agent-delegation block, 5 lifecycle pipelines, 22+ atomic commands, filters
 - `skills/design/references/architecture.md` — three-layer model (Pipelines → Filters → Knowledge Base) + extension points
 - `skills/design/references/pipelines.md` — lifecycle pipeline runbooks
 - `skills/design/data/` — CSV databases for BM25 search
@@ -17,7 +20,8 @@ Plugin manifest lives at `.claude-plugin/plugin.json`. The skill is at `skills/d
 - `skills/design/templates/` — starter templates (iOS SwiftUI theme, web CSS/Tailwind)
 - `NOTICE.md` — attribution for 5 source open-source projects
 - `LICENSE` — MIT
-- `docs/superpowers/specs/` — integration specs (e.g. motion-principles reintegration)
+- `docs/superpowers/specs/` — integration specs (e.g. v1.2 design at `2026-04-24-v1.2-design.md`)
+- `docs/superpowers/plans/` — implementation plans
 
 ## Scripts
 
@@ -36,3 +40,16 @@ Then invoke `/superdesign:design start` to kick off a new project (runs teach �
 ## Architecture (three-layer rule)
 
 Every command — atomic or pipeline — must: (1) resolve facts through Layer 1 in the fixed order (project tokens → designlib MCP → local CSV → iOS HIG refs → free generation), (2) pass candidate output through Layer 2 filters (Design Direction, Dials, Aesthetics, Anti-Patterns, Output Rules), (3) emit. Silently skipping Layer 2 is the #1 cause of generic "AI slop" output. When adding features, use the extension markers (`KB-EXTENSION`, `FILTER-EXTENSION`, `PIPELINE-STEP-EXTENSION`, `PIPELINE-EXTENSION`) so changes are additive.
+
+## Agent delegation (v1.2+)
+
+In Claude Code, the main skill delegates heavy operations to sub-agents in `agents/`:
+
+- audit / review step 1 → `design-auditor`
+- critique / review step 2 → `design-critic`
+- motion-focused audit → `motion-auditor`
+- /design system / start step 2 → `design-system-architect`
+- brand / logo / cip / banner / slides → `brand-agent`
+- polish --fix / review step 3 → `polish-fixer`
+
+Each agent loads its own references, enforces the Layer 2 checklist before emit, and returns a structured result (`status`, `report_path`, `findings`, `fixable_count`, `layer2_checklist`). In Cursor the same logic runs inline — agents are CC-only but the behaviour is identical.

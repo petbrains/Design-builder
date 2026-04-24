@@ -30,7 +30,7 @@ Every pipeline obeys the same rules:
 
 1. `teach` — capture Design Context (audience, use cases, tone, platform) into `.impeccable.md`.
    → CHECKPOINT: show the captured context; user confirms or corrects.
-2. `system [--platform]` — run the structured interview, propose 3 variations, emit tokens (tokens.css + Tailwind + shadcn for web; xcassets + SwiftUI theme for iOS; both for cross).
+2. `system [--platform]` — run the structured interview, propose 3 variations, emit tokens. Delegates to `design-system-architect` in Claude Code; runs inline in Cursor. Same output either way.
    → CHECKPOINT: show the 3 variations with differentiation hooks; user picks one.
    → FILTER PASS: emitted tokens must not contain Anti-Pattern colors (no lila/cyan-on-dark), must honor Design Dials.
 3. `shape [--platform]` — plan the top-level UX/UI before any code is written. Produces brief with layout, states, interactions, content strategy, open questions.
@@ -84,7 +84,7 @@ Every pipeline obeys the same rules:
 
 **Steps:**
 
-1. `critique [--platform]` — Nielsen heuristics scoring · AI slop detection · persona-based testing · two-pass (LLM review + automated detection).
+1. `critique [--platform]` — Nielsen heuristics scoring · AI-slop detection · persona walkthroughs. Delegates to `design-critic`.
    → CHECKPOINT: present critique report with P0–P3 severity.
 2. **Direction modifier** *(pick one based on critique + user preference)*:
    - `bolder` — amplify safe/boring designs
@@ -112,13 +112,13 @@ Every pipeline obeys the same rules:
 
 **Steps:**
 
-1. `audit [--platform]` — technical quality across 5 dimensions.
+1. `audit [--platform]` — technical quality across 5 dimensions. Delegates to `design-auditor`; motion findings delegate further to `motion-auditor`.
    - **Web:** WCAG AA accessibility, Core Web Vitals, theming, responsive, Anti-Patterns
    - **Web motion:** Motion Gap Analysis (conditional renders without `AnimatePresence`, ternary swaps, dynamic styles without transition)
    - **iOS:** Dynamic Type AX5, Reduce Motion, Increase Contrast, Increase Transparency, `.accessibilityLabel/.accessibilityValue` coverage, HIG deviations
    → CHECKPOINT: scored report with P0–P3 severity + prioritized fix plan.
-2. `critique [--platform]` — second pass, now focused on UX heuristics rather than technical quality.
-3. `polish [--platform]` *(with `--fix`)* — apply the fix plan from steps 1 and 2 where auto-fixable.
+2. `critique [--platform]` — second pass focused on UX heuristics. Delegates to `design-critic`.
+3. `polish [--platform]` *(with `--fix`)* — apply the fix plan. Delegates to `polish-fixer` when `--fix` is present.
    → FILTER PASS: post-fix re-run audit to confirm severity counts went down.
 
 <!-- PIPELINE-STEP-EXTENSION: review -->
