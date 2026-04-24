@@ -399,12 +399,11 @@ Build a distinctive interface from scratch (with a design system already in plac
 ## 3. Review & Quality
 
 ### `/design audit [--platform ...]`
-Technical quality checks across 5 dimensions. Used inside `/design review`.
-- **Web:** accessibility (WCAG AA), performance (Core Web Vitals), theming, responsive, anti-patterns
-- **Web motion:** Motion Gap Analysis (conditional renders without AnimatePresence, ternary swaps, dynamic styles without transition) via `references/web/motion/motion-gaps.md` → systematic review via `motion/audit-checklist.md` → per-designer report via `motion/output-format.md`
-- **iOS:** Dynamic Type AX5, Reduce Motion, Increase Contrast, Increase Transparency, `.accessibilityLabel/.accessibilityValue` coverage, HIG deviations
+Technical quality checks across 5 dimensions (a11y, perf, responsive, theming, anti-patterns on web; Dynamic Type, Reduce Motion, Increase Contrast / Transparency, a11y labels, HIG on iOS). Motion gap analysis is handled by `motion-auditor`.
 
-Generates scored report with P0–P3 severity + prioritized fix plan.
+**Routing:** If the Agent tool is available (Claude Code), delegate to `design-auditor`. Otherwise (Cursor, other environments), execute inline by loading the same references listed in `agents/design-auditor.md` and following its dimensions and severity rubric. Output format is identical in both paths.
+
+Used inside `/design review` step 1.
 
 ### `/design critique [--platform ...]`
 UX evaluation: Nielsen's heuristics scoring · AI slop detection · persona-based testing · two-pass (LLM review + automated detection) merged. Used inside `/design refine` and `/design review`.
