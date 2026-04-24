@@ -1,5 +1,10 @@
 # Interaction Design
 
+## Interaction DO/DON'T — moved from SKILL.md in v1.2
+
+**DO:** progressive disclosure; optimistic UI; empty states that teach; buttons with `scale(0.97)` on `:active`.
+**DON'T:** repeat information; make every button primary; animate from `scale(0)`.
+
 ## The Eight Interactive States
 
 Every interactive element needs these states designed:

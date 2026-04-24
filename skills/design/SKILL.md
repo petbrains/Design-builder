@@ -248,11 +248,7 @@ For motion audits and designer-lens reports, `/design audit` routes motion findi
 
 ### Interaction
 
-**Web** → `references/web/interaction-design.md`
-**iOS** → `references/ios/gestures.md` + `references/ios/modals.md` + `references/ios/controls.md`
-
-**DO:** progressive disclosure; optimistic UI; empty states that teach; buttons with `scale(0.97)` on `:active`.
-**DON'T:** repeat information; make every button primary; animate from `scale(0)`.
+Web detail → `references/web/interaction-design.md` · iOS detail → `references/ios/gestures.md`, `modals.md`, `controls.md`.
 
 ### Responsive (web)
 
