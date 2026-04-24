@@ -383,7 +383,13 @@ UX evaluation: Nielsen heuristics scoring, AI-slop detection, persona walkthroug
 Used inside `/design refine` and `/design review`.
 
 ### `/design polish [--platform ...]`
-Final quality pass: alignment, spacing, consistency, typography, color, interaction states, micro-interactions, copy, icons, forms, edge cases, responsive (web) / Dynamic Type + Reduce Motion (iOS). Used inside `/design refine` and `/design review` (with `--fix`).
+Final quality pass: alignment, spacing, consistency, typography, color, interaction states, micro-interactions, copy, icons, forms, edge cases, responsive (web) / Dynamic Type + Reduce Motion (iOS).
+
+**Routing for `--fix`:** If Agent tool available → delegate to `polish-fixer` with the audit report path. Otherwise execute inline per `agents/polish-fixer.md`. Output (diff summary + residuals) is identical.
+
+Without `--fix`, the command reports what it would change but does not edit; this narrative path stays in the main skill.
+
+Used inside `/design refine` and `/design review` (with `--fix`).
 
 ### `/design redesign [--platform ...]`
 Audit + fix existing projects. Scan for generic AI patterns → diagnose problems → targeted upgrades without full rewrite. *Shortcut:* internally behaves like `review` + targeted `refine`; usually prefer the full pipelines.
