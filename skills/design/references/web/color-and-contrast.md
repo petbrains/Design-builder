@@ -1,5 +1,11 @@
 # Color & Contrast
 
+## Color rules (web) — moved from SKILL.md in v1.2
+
+**Web core rules** → `references/web/color-and-contrast.md`
+- OKLCH not HSL. Reduce chroma near white/black. Tint neutrals toward brand hue.
+- 60-30-10 rule. Max 1 accent. Saturation <80%.
+
 ## Color Spaces: Use OKLCH
 
 **Stop using HSL.** Use OKLCH (or LCH) instead. It's perceptually uniform, meaning equal steps in lightness *look* equal—unlike HSL where 50% lightness in yellow looks bright while 50% in blue looks dark.

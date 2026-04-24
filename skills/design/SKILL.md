@@ -229,8 +229,6 @@ Pair a distinctive display font with a refined body font. Full selection procedu
 Commit to a cohesive palette. Dominant colors with sharp accents outperform timid, evenly-distributed palettes.
 
 **Web core rules** → `references/web/color-and-contrast.md`
-- OKLCH not HSL. Reduce chroma near white/black. Tint neutrals toward brand hue.
-- 60-30-10 rule. Max 1 accent. Saturation <80%.
 
 **iOS core rules** → `references/ios/color.md`
 - Prefer semantic `Color(.label)` / `Color(.systemBackground)` for chrome
