@@ -430,25 +430,15 @@ Responsive/cross-platform. Web: per-breakpoint strategy. iOS: iPhone ↔ iPad si
 
 These produce *artifacts*, not *lifecycle stages*. Call directly.
 
-### `/design brand`
-Brand voice, visual identity, messaging frameworks, asset management, consistency audit.
-→ [`references/brand/`](references/brand/)
+| Command | Purpose | Deep ref |
+|---|---|---|
+| `/design brand` | Brand voice, visual identity, messaging frameworks, consistency audit | `references/brand/` |
+| `/design logo` | Logos — 55+ styles, color psychology, industry guidance | `references/design/logo-design.md` |
+| `/design cip` | Corporate Identity Program — 50+ deliverables, mockups | `references/design/cip-design.md` |
+| `/design banner` | Banners for social, ads, web, print — 22 art-direction styles, multi-platform sizing | `references/design/banner-sizes-and-styles.md` |
+| `/design slides` | Strategic HTML presentations with Chart.js, design tokens, copywriting formulas | `references/slides/` |
 
-### `/design logo`
-Generate logos. 55+ styles, color psychology, industry-specific guidance.
-→ [`references/design/logo-design.md`](references/design/logo-design.md)
-
-### `/design cip`
-Corporate Identity Program. 50+ deliverables, mockup generation.
-→ [`references/design/cip-design.md`](references/design/cip-design.md)
-
-### `/design banner`
-Banners for social, ads, web, print. 22 art-direction styles, multi-platform sizing.
-→ [`references/design/banner-sizes-and-styles.md`](references/design/banner-sizes-and-styles.md)
-
-### `/design slides`
-Strategic HTML presentations with Chart.js, design tokens, copywriting formulas.
-→ [`references/slides/`](references/slides/)
+**Routing:** If Agent tool available → delegate to `brand-agent` with `deliverable` set. Otherwise execute inline per `agents/brand-agent.md`. Output is identical.
 
 ## 7. Search (standalone)
 
