@@ -256,10 +256,7 @@ Detail → `references/web/responsive-design.md`.
 
 ### Haptics (iOS)
 
-→ `references/ios/haptics.md`
-
-**DO:** prefer SwiftUI `.sensoryFeedback` (iOS 17+); set haptic budget at interview time; rely on system controls for default feedback.
-**DON'T:** fire haptics more than ~5×/minute in normal use (haptic fatigue); duplicate system-provided haptics.
+Detail → `references/ios/haptics.md`.
 
 ### UX Writing
 
