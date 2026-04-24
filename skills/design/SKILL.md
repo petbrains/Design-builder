@@ -337,22 +337,15 @@ Commands are platform-aware — most accept `--platform web|ios|cross` or infer 
 ### `/design system [web|ios|cross]`
 **The main system-generation command. Everything else assumes a design system exists.** Used inside `/design start`.
 
-Runs a structured interview → proposes 3 variations (style + palette + fonts + motion intensity) → on pick, emits platform-specific tokens + markdown spec.
+Runs a structured interview → proposes 3 variations → on pick, emits platform-specific tokens + `design-system.md` spec.
 
 - **web** → `tokens.css` + `tailwind.config.*` + shadcn theme + `design-system.md`
-- **ios** → `Assets.xcassets/DesignSystem/*.colorset` + `Theme/Color+DesignSystem.swift` + `Typography.swift` + `Spacing.swift` + `Motion.swift` + optional `Haptics.swift` + `design-system.md`
-- **cross** → both, with aligned palette family + font tone
+- **ios** → xcassets + SwiftUI theme files + `design-system.md`
+- **cross** → both, aligned
 
-**Workflow:**
-1. [`references/system/interview.md`](references/system/interview.md) — question-by-question script
-2. Call designlib MCP: `list_domains` → `get_domain(platform=..., top_n=3)`
-3. Present 3 variations with differentiation hooks
-4. On pick → `get_style`/`get_palette`/`get_font_pair` for final tokens
-5. Emit via [`web-pipeline.md`](references/system/web-pipeline.md) or [`ios-pipeline.md`](references/system/ios-pipeline.md)
+**Routing:** If Agent tool available → delegate to `design-system-architect`. Otherwise execute inline per `agents/design-system-architect.md`. Interview, candidate generation, emission, and Figma materialization are identical.
 
-If designlib is offline → fall back to `scripts/search.py --platform <p> --design-system -p <name>`.
-
-**Figma branch (optional, additive).** If the Figma MCP (`mcp__*figma*__*`) is connected and the user wants the system materialized in Figma too, after local token emission load [`references/figma/generate-library/SKILL.md`](references/figma/generate-library/SKILL.md) + [`skills/figma-use/`](../../figma-use/SKILL.md) and build variables + core components (Button, Input, Card, Nav, Avatar, Badge, Modal, Tabs, Divider, Icon) in the user's Figma file. Local generation is base truth; Figma is a materialization, not a replacement. Requires Dev/Full seat for realistic call budgets.
+Offline fallback: `python scripts/design_system.py --platform <p>`.
 
 ### `/design teach`
 Write the Design Context section to `.impeccable.md`. Lightweight version of `/design system` — just context capture, no token emission. Used inside `/design start`.
