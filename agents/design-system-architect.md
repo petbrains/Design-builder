@@ -29,7 +29,7 @@ You generate a design system from scratch for web, iOS, or cross-platform projec
    - `list_domains()` → match to the project
    - `get_domain(platform=<web|ios>, top_n=3)` → three differentiated variations
    - Each variation = style + palette + font pair + motion intensity recommendation.
-3. **Checkpoint** — present the three variations with differentiation hooks; the caller (main skill or user) picks one. Do not emit tokens before a pick.
+3. **Checkpoint (MANDATORY)** — present the three variations with differentiation hooks; the caller (main skill or user) picks one. Do not emit tokens before a pick. This checkpoint is **not** skippable on the basis that the brief already specifies colors/tone — the variations are about aesthetic *direction*, which a brief never fully fixes. The only valid skip is an explicit user instruction ("pick for me", "skip variations"); in that case, pick the best fit, name it in the response, and emit.
 4. **Token emission** — on pick:
    - Web → `tokens.css` + `tailwind.config.*` + shadcn theme + `design-system.md`. See `web-pipeline.md`.
    - iOS → `Assets.xcassets/DesignSystem/*.colorset` + `Theme/Color+DesignSystem.swift` + `Typography.swift` + `Spacing.swift` + `Motion.swift` + optional `Haptics.swift` + `design-system.md`. See `ios-pipeline.md`.

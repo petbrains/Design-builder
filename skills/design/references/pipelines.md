@@ -6,10 +6,10 @@ Five pipelines organize the 22+ atomic commands into the natural flow of a desig
 
 Every pipeline obeys the same rules:
 
-1. **Pre-check** — before the first step, confirm the prerequisites listed under that pipeline. If missing, offer to run the pipeline that produces them (e.g. `start` before `make`).
-2. **Step ordering** — steps run sequentially. Do not parallelize unless the pipeline explicitly says so.
+1. **Pre-check (BLOCKING)** — before the first step, confirm the prerequisites listed under that pipeline. If missing, **stop** and offer to run the pipeline that produces them (e.g. `start` before `make`). Do not silently proceed by improvising the missing artifact. The only override is an explicit user instruction to skip ahead anyway.
+2. **Step ordering (STRICT)** — steps run sequentially in the listed order. Skipping a step is allowed **only when the user explicitly asks for it** (e.g. `--skip system`, `--from craft`, or chat instructions like "skip the interview"). When a step is skipped, name it in the response so the user knows which checkpoint was forfeited. Never skip a step on the model's own judgment that "context is already complete" or "the brief covers it".
 3. **Filter pass** — after each step, the output is checked against Layer 2 filters (Design Direction, Dials, Aesthetics, Anti-Patterns, Output Rules). Failures route back to the step with tightened constraints.
-4. **Checkpoints** — at every `→ CHECKPOINT` line, pause and show the user what was produced before moving on. They can redirect, skip, or stop.
+4. **Checkpoints (MANDATORY)** — at every `→ CHECKPOINT` line, pause and show the user what was produced before moving on. They can redirect, skip, or stop. Checkpoints are not optional: a "fast path" that skips them is a bug, not a feature. Running multiple steps in one turn without showing the user the intermediate output is the most common way this skill robs the user of choice — do not do it.
 5. **Flags** — pipelines accept:
    - `--platform web|ios|cross` — passed through to every step
    - `--from <step>` — resume from a named step (skip earlier ones)
@@ -17,6 +17,16 @@ Every pipeline obeys the same rules:
    - `--dry-run` — print the plan (which atomics will run, in what order) without executing
    - `--step` — interactive: confirm each step before running it
 6. **Post-validation** — the final output of the pipeline is re-scanned against Layer 2 as a whole, not just step-by-step, to catch cross-step drift.
+
+### Free-form briefs (no slash command)
+
+If the user describes a design task in chat **without** invoking a slash command (e.g. "I'm building a landing for X, here's the audience, tone, sections…"), do **not** auto-route to `/design make`. The brief is *input* to `/design start`, not a replacement for it. Default behavior:
+
+1. Detect that this is a new design project (no `.impeccable.md`, no committed tokens, or new directory).
+2. Surface the routing decision to the user in one line: *"This looks like a new project. I'll run `/design start` (teach → system → shape) so you can pick a direction and approve the UX plan before I write code. Say 'skip to code' if you'd rather I jump straight to `craft`."*
+3. Wait for confirmation or override. Then proceed.
+
+Treating a detailed brief as license to skip `system` (the 3-variation pick) and `shape` (the UX plan) is the #1 way this skill bypasses the user's input. Don't.
 
 ---
 
@@ -30,11 +40,12 @@ Every pipeline obeys the same rules:
 
 1. `teach` — capture Design Context (audience, use cases, tone, platform) into `.impeccable.md`.
    → CHECKPOINT: show the captured context; user confirms or corrects.
+   → SKIPPABLE WHEN: a complete brief is already in chat **and** the user confirms it; or `.impeccable.md` already has a Design Context section. Even when skipped, write the captured context to `.impeccable.md` so later steps can read it.
 2. `system [--platform]` — run the structured interview, propose 3 variations, emit tokens. Delegates to `design-system-architect` in Claude Code; runs inline in Cursor. Same output either way.
-   → CHECKPOINT: show the 3 variations with differentiation hooks; user picks one.
+   → CHECKPOINT: show the 3 variations with differentiation hooks; user picks one. **This checkpoint is mandatory unless the user explicitly says "skip variations" / "pick for me" / equivalent.** A detailed brief specifying colors and tone does NOT auto-skip this step — the 3 variations are about aesthetic *direction*, which the brief never fully fixes.
    → FILTER PASS: emitted tokens must not contain Anti-Pattern colors (no lila/cyan-on-dark), must honor Design Dials.
 3. `shape [--platform]` — plan the top-level UX/UI before any code is written. Produces brief with layout, states, interactions, content strategy, open questions.
-   → CHECKPOINT: present the brief; user approves or lists revisions.
+   → CHECKPOINT: present the brief; user approves or lists revisions. Skippable only on explicit user instruction.
 4. `extract [--platform]` *(optional, only if user supplied reference screenshots/URLs)* — pull reusable components and tokens from references.
 5. `brand` *(optional)* — derive voice, visual identity, messaging frameworks from the Design Context.
 
@@ -50,7 +61,18 @@ Every pipeline obeys the same rules:
 
 **Purpose:** turn design context + tokens + UX brief into working code.
 
-**Pre-check:** design system exists (tokens committed, `.impeccable.md` has Design Context). If not, suggest running `start` first.
+**Pre-check (BLOCKING):** all three must be true before step 1 runs:
+
+1. `.impeccable.md` exists at project root with a **Design Context** section (audience, use cases, tone, platform).
+2. A design system is committed — for web: `tokens.css` or `tailwind.config.*` with project tokens; for iOS: `*.xcassets` + a SwiftUI theme file. Generic Tailwind defaults do NOT count.
+3. A UX brief from `shape` exists (or the user has explicitly said they don't need one).
+
+If any of these is missing, **stop** and respond with one of two things:
+
+- *"This project doesn't have a design system yet. I'll run `/design start` first — that's `teach → system → shape`, with checkpoints at each step so you pick the direction. Want me to start?"*
+- If the user has already said "skip ahead" or invoked `/design make` directly: *"Heads up — running `make` without `start` means I'll generate tokens ad-hoc and you won't see the 3 variations or UX plan. Proceeding."*
+
+Never silently fabricate the missing artifacts and continue. A detailed chat brief is **not** a substitute for `start` — see *Free-form briefs* in the universal contract above.
 
 **Entry variants:**
 - **Code-first (default)** — user wants working code built from scratch.
