@@ -21,7 +21,7 @@ It means:
 3. Call `python scripts/generate_system_preview.py --candidates <tmp.json> --project "<name>" --platform <web|ios|cross>`.
 4. Hand the user the absolute HTML path the script prints. The user opens it, presses 1/2/3, picks A/B/C.
 
-Steps 1–3 are internal and produce no chat messages. Step 4 is one short message containing one path. **Anything else — paragraphs of A/B/C copy, hex lists, font lists, "I can render previews if you want" — is wrong.** Detailed protocol: `agents/design-system-architect.md`, Steps 2–4.
+Steps 1–3 are internal and produce no chat messages. Step 4 is one short message containing one path. **Anything else — paragraphs of A/B/C copy, hex lists, font lists, "I can render previews if you want" — is wrong.** Detailed protocol: `skills/design/SKILL.md` under `/design system`.
 
 ## Section 0 — Platform confirm
 

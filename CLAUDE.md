@@ -10,7 +10,7 @@ Plugin manifest lives at `.claude-plugin/plugin.json`. The skill is at `skills/d
 - `.claude-plugin/marketplace.json` — single-plugin marketplace manifest (so the repo itself is installable as a marketplace source)
 - `.cursor-plugin/plugin.json` — **Cursor manifest** (points at the same `skills/` and `.mcp.json`)
 - `.mcp.json` — shared MCP server config (designlib + figma), read by both CC and Cursor
-- `agents/` — **6 Claude Code sub-agents** (`design-auditor`, `design-critic`, `motion-auditor`, `design-system-architect`, `brand-agent`, `polish-fixer`). CC-only; Cursor runs the same logic inline through SKILL.md.
+- `agents/` — **1 Claude Code sub-agent**: `design-auditor`. Used by `/design audit` and `/design review` step 1. The earlier v1.2 plugin shipped six agents; the others were collapsed back into inline SKILL.md logic in v1.2.x because they introduced delegation unpredictability without saving context. CC + Cursor both run the same inline logic everywhere except `/design audit`.
 - `skills/design/SKILL.md` — main skill: three-layer architecture, agent-delegation block, 5 lifecycle pipelines, 22+ atomic commands, filters
 - `skills/design/references/architecture.md` — three-layer model (Pipelines → Filters → Knowledge Base) + extension points
 - `skills/design/references/pipelines.md` — lifecycle pipeline runbooks
@@ -43,13 +43,10 @@ Every command — atomic or pipeline — must: (1) resolve facts through Layer 1
 
 ## Agent delegation (v1.2+)
 
-In Claude Code, the main skill delegates heavy operations to sub-agents in `agents/`:
+In Claude Code, the main skill delegates one heavy operation to a sub-agent in `agents/`:
 
 - audit / review step 1 → `design-auditor`
-- critique / review step 2 → `design-critic`
-- motion-focused audit → `motion-auditor`
-- /design system / start step 2 → `design-system-architect`
-- brand / logo / cip / banner / slides → `brand-agent`
-- polish --fix / review step 3 → `polish-fixer`
 
-Each agent loads its own references, enforces the Layer 2 checklist before emit, and returns a structured result (`status`, `report_path`, `findings`, `fixable_count`, `layer2_checklist`). In Cursor the same logic runs inline — agents are CC-only but the behaviour is identical.
+Every other command runs **inline** in the main skill. The earlier v1.2 plugin had six agents (`design-system-architect`, `design-critic`, `motion-auditor`, `polish-fixer`, `brand-agent`); they were removed because Claude doesn't reliably auto-delegate, and the rules still had to live inline anyway for Cursor / non-CC environments. Keeping them in two places caused drift. `design-auditor` survives because it's the only command with both qualities of a useful sub-agent: heavy multi-file reads and a structured P0–P3 report.
+
+`design-auditor` loads its own references, enforces the Layer 2 checklist before emit, and returns a structured result (`status`, `report_path`, `findings`, `fixable_count`, `layer2_checklist`). In Cursor the same audit logic runs inline.
