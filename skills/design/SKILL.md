@@ -11,6 +11,28 @@ You are a senior design engineer who builds distinctive, production-grade interf
 
 ---
 
+## Pipeline order is sacred — READ FIRST
+
+**For new projects, the entry pipeline is `/design start`, not `/design make`.** A new project = no `.impeccable.md` with picked tokens, no committed `tokens.css` / `tailwind.config` / xcassets + SwiftUI theme produced by `/design system`.
+
+The order is **`start → make → refine → review → ship`**. Steps inside a pipeline are sequential. Checkpoints (3-variation pick in `system`, UX brief in `shape`, motion preview in `animate`, etc.) are **mandatory** — they are where the user makes choices.
+
+You may skip a step **only** when one of these is true:
+
+1. The user explicitly tells you to: *"skip the interview"*, *"pick for me"*, *"go straight to code"*, *"no UX brief, just build"*, `--skip <step>`, `--from <step>`.
+2. The user directly invokes a later atomic (`/design craft`, `/design make`). Even then, surface the missing prerequisites once before running.
+
+**You may NOT skip on your own judgment.** Specifically:
+
+- A detailed free-form brief in chat is **not** an implicit skip. It's input to `start`.
+- "The brief covers audience, tone, and colors" is **not** a reason to skip `system` — that step is about aesthetic *direction* and forces the user to pick between 3 variations.
+- "Context is complete" is **not** a reason to skip `shape` — that step produces the UX plan the user approves before any code.
+- Running multiple steps in one turn without showing intermediate output to the user is the most common bug. Don't.
+
+If in doubt: ask, don't jump. Better to show your routing decision in one line ("This looks like a new project — I'll run `/design start` so you pick the direction. Say 'skip to code' to override.") than to silently produce HTML the user didn't get to influence.
+
+---
+
 ## Architecture — READ THIS FIRST
 
 SuperDesign is a three-layer system. Every command — whether called standalone or as a step inside a pipeline — MUST respect the layering.
@@ -98,11 +120,22 @@ Design skills produce generic output without project context. Required minimum:
 - **Platform** — web / ios / cross
 
 **Gathering order:**
-1. Check loaded instructions for **Design Context** section. If present, proceed.
-2. Read `.impeccable.md` from project root. If it has context, proceed.
+1. Check loaded instructions for **Design Context** section. If present, the `teach` step may be skipped — but ONLY `teach`, never `system` or `shape`.
+2. Read `.impeccable.md` from project root. If it has context, same rule — `teach` may be skipped.
 3. If no context found, run `/design teach` OR start the `/design start` pipeline — both gather context via interview.
 
 **CRITICAL:** You cannot infer personality/audience/tone by reading code. Code tells you *what was built*, not *who it's for* or *how it should feel*.
+
+**Equally critical — having context is NOT permission to skip ahead to `make`.** A filled-in brief covers audience/tone/use cases, but it does not produce a *design system* (token decisions, 3 aesthetic variations to pick from) or a *UX brief* (`shape` output). Those are separate steps with their own user-facing checkpoints. Going straight to `craft` because "the brief looks complete" is the #1 way this skill skips the user's choice and produces an output they had no say in.
+
+## Pipeline-order rule (READ BEFORE EVERY RUN)
+
+For any new project (no design system in the repo, no `.impeccable.md` with picked tokens), the entry pipeline is **`/design start`** — not `/design make`. This is non-negotiable except in two cases:
+
+1. **The user explicitly skips a step.** They say "skip the interview", "go straight to code", "no need for variations, just build it", `--from craft`, `--skip system`, etc. Then and only then you skip — and you tell them which checkpoint they're forfeiting.
+2. **The user explicitly invokes a later atomic.** They type `/design craft` or `/design make` themselves. Honor it, but if the prerequisites are missing, surface that once before running: *"No design system found in repo. Running `craft` will generate ad-hoc tokens that won't be reused. Want to run `/design start` first, or proceed anyway?"*
+
+Receiving a detailed brief in chat is **not** an implicit skip. A brief is input to `start`, not a replacement for it. If in doubt, ask — never silently jump pipelines.
 
 ## Reference index
 
@@ -341,6 +374,8 @@ Pull reusable components + design tokens from screenshots or existing interfaces
 
 ### `/design craft [--platform ...]`
 Build a distinctive interface from scratch (with a design system already in place). Gathers page-level context → makes design decisions → implements working code. Used inside `/design make`.
+
+**Pre-check (BLOCKING):** committed project tokens + a UX intent (either `shape` brief or explicit user instruction). If missing, surface once: *"No design system / UX brief found. Running `craft` will fabricate tokens you didn't choose. Want `/design start` first, or proceed?"* Do not silently invent tokens and continue. Same rule applies whether `craft` is called via `/design make` or directly.
 → *Web workflow:* [`references/web/craft.md`](references/web/craft.md)
 → *iOS:* load relevant `references/ios/*` based on surfaces being built (navigation, modals, toolbar, etc.)
 
