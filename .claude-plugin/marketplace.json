@@ -12,7 +12,7 @@
     {
       "name": "superdesign",
       "source": "./",
-      "description": "Unified design skill for web + iOS with 22+ commands, 6 sub-agents, designer motion perspectives, iOS HIG refs, BM25 search, and anti-pattern detection. Claude Code + Cursor.",
+      "description": "Unified design skill for web + iOS with 22+ commands, visual /design system preview, distinctiveness gate, designer motion perspectives, iOS HIG refs, BM25 search, and anti-pattern detection. Claude Code + Cursor.",
       "category": "design",
       "tags": ["design-system", "ui", "ux", "web", "ios", "motion", "figma"]
     }

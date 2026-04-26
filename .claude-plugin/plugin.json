@@ -1,7 +1,7 @@
 {
   "name": "superdesign",
   "version": "1.2.0",
-  "description": "Unified design skill for web + iOS. 22+ commands across 5 lifecycle pipelines, now with 6 Claude Code sub-agents that isolate heavy reviews (audit, critique, motion, system, brand, polish). Cursor-compatible via root plugin.json. Backed by BM25 search, iOS HIG refs, designer motion perspectives, and anti-pattern detection.",
+  "description": "Unified design skill for web + iOS. 22+ commands across 5 lifecycle pipelines, with `design-auditor` sub-agent for isolated audits. Visual preview for /design system + Distinctiveness Gate filter. Cursor-compatible via root plugin.json. Backed by BM25 search, iOS HIG refs, designer motion perspectives, and anti-pattern detection.",
   "author": {
     "name": "Roman Pluzhnikov",
     "email": "pluzhnikov137@gmail.com"

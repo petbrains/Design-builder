@@ -11,6 +11,18 @@ This is the script for `/design system <web|ios|cross>`. Follow it **in order**,
 
 **Do NOT skip questions.** If the user says "just pick something," keep at least sections 1, 2, 3 — product, context, personality. Without those designlib domain picks and local style matching degrade to hallucination.
 
+## What "propose 3 variations" means
+
+It does **not** mean: write three paragraphs in chat describing each option. That is the failure mode of this command and it is what the visual preview script exists to prevent.
+
+It means:
+1. Build 3 candidate JSON objects matching `scripts/generate_system_preview.py`'s schema.
+2. Run them through `references/distinctiveness-gate.md` in HARD mode (regenerate failures).
+3. Call `python scripts/generate_system_preview.py --candidates <tmp.json> --project "<name>" --platform <web|ios|cross>`.
+4. Hand the user the absolute HTML path the script prints. The user opens it, presses 1/2/3, picks A/B/C.
+
+Steps 1–3 are internal and produce no chat messages. Step 4 is one short message containing one path. **Anything else — paragraphs of A/B/C copy, hex lists, font lists, "I can render previews if you want" — is wrong.** Detailed protocol: `skills/design/SKILL.md` under `/design system`.
+
 ## Section 0 — Platform confirm
 
 Argument parsing: `/design system web` → web pipeline only · `/design system ios` → iOS only · `/design system cross` → both, aligned · `/design system` (no arg) → ask:

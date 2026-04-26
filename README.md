@@ -1,12 +1,15 @@
 # SuperDesign — Design Plugin for Claude Code & Cursor
 
-Unified design skill for Claude Code **and Cursor**. Build distinctive production-grade interfaces on **web** and **iOS** (iOS 18 + iOS 26 Liquid Glass), organized around **5 lifecycle pipelines** on top of 22+ atomic commands, enforced by a three-layer architecture, and (in Claude Code) accelerated by **6 isolated-context sub-agents**.
+Unified design skill for Claude Code **and Cursor**. Build distinctive production-grade interfaces on **web** and **iOS** (iOS 18 + iOS 26 Liquid Glass), organized around **5 lifecycle pipelines** on top of 22+ atomic commands, enforced by a three-layer architecture, with one isolated-context sub-agent for heavy audits.
 
 Built on top of five open-source projects: [Impeccable](https://github.com/pbakaus/impeccable), [Emil Kowalski Design Skill](https://emilkowal.ski/skill), [Taste Skill](https://github.com/Leonxlnx/taste-skill), [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill), and [Design Motion Principles](https://github.com/kylezantos/design-motion-principles). See [NOTICE.md](NOTICE.md) for full attribution.
 
 ## What's new in v1.2
 
-- **6 sub-agents** (`design-auditor`, `design-critic`, `motion-auditor`, `design-system-architect`, `brand-agent`, `polish-fixer`) — heavy review and generation logic moved out of the main skill into isolated Claude Code agents. The main context stays light; agents load their own references and return compact, structured results with a Layer-2 checklist.
+- **Visual design-system preview** — `/design system` now renders three candidate aesthetic directions as a single HTML file with `1 / 2 / 3` switcher, so you pick visually instead of from a text description. Apply ≠ approve: nothing is written to your project until you choose. Platform-aware (web mocks for web, faux iPhone frame for iOS).
+- **Distinctiveness Gate** — new Layer-2 filter that catches generic-but-technically-clean output (the kind that passes anti-pattern checks but reads as "any LLM could have made this"). HARD on `/design system` (failed candidates regenerated silently), SOFT on `/design craft` (output shown with a `Risks taken & gaps` block).
+- **Pipeline order is enforced** — for new projects the entry point is always `/design start`, never `/design make`. Free-form briefs in chat no longer auto-route past the variation pick or the UX brief.
+- **One sub-agent** — `design-auditor` is the only sub-agent: heavy multi-file reads + structured P0–P3 report. Earlier v1.2 shipped six agents; the others were folded back into inline SKILL.md logic to avoid delegation unpredictability and rule drift between Claude Code and Cursor.
 - **Cursor support** — `.cursor-plugin/plugin.json` mirrors the `.claude-plugin/` layout. Skills are shared one-to-one. In Cursor every command runs inline (no agent isolation), but the logic and output are identical.
 - **Slimmer SKILL.md** — Frontend-Aesthetics DO/DON'T detail (typography, color, layout, interaction, responsive, haptics, UX writing) lives in the dedicated `references/*.md` files instead of inline. Top-level guard-rails (Absolute Bans, Output Rules, Technical Rules) stay in the main skill.
 
@@ -49,18 +52,15 @@ Full architecture: [`skills/design/references/architecture.md`](skills/design/re
 
 ## Sub-agents (Claude Code)
 
-Six specialised agents own the heaviest logic. Claude Code routes a command to the matching agent automatically; the agent runs in an isolated context, loads its own references, and returns a compact structured result (`status`, `report_path`, `findings`, `layer2_checklist`).
+One specialised agent owns the heaviest read-only logic. Claude Code routes the audit commands to it automatically; the agent runs in an isolated context, loads its own references, and returns a compact structured result (`status`, `report_path`, `findings`, `layer2_checklist`).
 
 | Sub-agent | Triggered by | What it does |
 |---|---|---|
-| `design-auditor` | `/design audit`, `/design review` step 1 | Scored P0–P3 audit: WCAG AA, Core Web Vitals, responsive, theming, anti-patterns; on iOS — Dynamic Type AX5, Reduce Motion, Increase Contrast/Transparency, accessibility labels, HIG. |
-| `design-critic` | `/design critique`, `/design review` step 2 | Nielsen heuristics scoring + AI-slop detection (visual + content tells) + persona walkthroughs. |
-| `motion-auditor` | `/design audit` motion findings | Motion Gap Analysis + per-designer report (Emil / Jakub / Jhey lenses). |
-| `design-system-architect` | `/design system`, `/design start` step 2 | Interview → 3 differentiated variations → emits tokens (web: tokens.css + Tailwind + shadcn; iOS: xcassets + SwiftUI theme; cross: both). |
-| `brand-agent` | `/design brand`, `/design logo`, `/design cip`, `/design banner`, `/design slides` | Brand voice, logo sets (55+ styles), corporate identity programs, banners (22 art-direction styles), Chart.js HTML decks. |
-| `polish-fixer` | `/design polish --fix`, `/design review` step 3 | Applies auto-fixable findings from an audit report; returns diff summary + residuals. |
+| `design-auditor` | `/design audit`, `/design review` step 1 | Scored P0–P3 audit: WCAG AA, Core Web Vitals, responsive, theming, anti-patterns, motion gap analysis; on iOS — Dynamic Type AX5, Reduce Motion, Increase Contrast/Transparency, accessibility labels, HIG. |
 
-Every agent enforces a mandatory **Layer 2 pre-emit checklist** (Direction · Dials · Anti-Patterns · Output Rules · Aesthetics) — a `false` in any slot is treated as a hard failure. In Cursor the same logic runs inline through the main skill, with identical output.
+Every other command runs **inline** in the main skill — `/design system`, `/design craft`, `/design critique`, `/design polish --fix`, `/design brand|logo|cip|banner|slides`. Earlier v1.2 versions shipped six agents; the others were collapsed back inline because Claude doesn't reliably auto-delegate, and the rules had to live inline anyway for Cursor / non-CC environments. Maintaining identical logic in two places caused drift.
+
+The `design-auditor` agent enforces a mandatory **Layer 2 pre-emit checklist** (Direction · Dials · Anti-Patterns · Output Rules · Aesthetics) — a `false` in any slot is treated as a hard failure. In Cursor the same audit logic runs inline through the main skill, with identical output.
 
 ## Figma integration
 
@@ -115,7 +115,7 @@ All commands accept `--platform web\|ios\|cross` (or infer from project).
 ## What's Inside
 
 - **`skills/design/SKILL.md`** — main skill definition: architecture, pipelines, atomic commands, filters
-- **`agents/`** — 6 Claude Code sub-agents (`design-auditor`, `design-critic`, `motion-auditor`, `design-system-architect`, `brand-agent`, `polish-fixer`) that own the heavy review and generation logic in isolated contexts
+- **`agents/`** — 1 Claude Code sub-agent (`design-auditor`) for `/design audit`. Other commands run inline.
 - **`.cursor-plugin/plugin.json`** — Cursor manifest (mirrors `.claude-plugin/`)
 - **`.mcp.json`** at repo root — shared MCP server config (read by Cursor; Claude Code keeps its `mcpServers` inline in `.claude-plugin/plugin.json`)
 - **`skills/design/references/architecture.md`** — three-layer model + extension points

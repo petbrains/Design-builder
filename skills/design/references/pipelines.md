@@ -41,10 +41,13 @@ Treating a detailed brief as license to skip `system` (the 3-variation pick) and
 1. `teach` — capture Design Context (audience, use cases, tone, platform) into `.impeccable.md`.
    → CHECKPOINT: show the captured context; user confirms or corrects.
    → SKIPPABLE WHEN: a complete brief is already in chat **and** the user confirms it; or `.impeccable.md` already has a Design Context section. Even when skipped, write the captured context to `.impeccable.md` so later steps can read it.
-2. `system [--platform]` — run the structured interview, propose 3 variations, emit tokens. Delegates to `design-system-architect` in Claude Code; runs inline in Cursor. Same output either way.
+2. `system [--platform]` — run the structured interview, propose 3 variations, emit tokens. Runs inline (no agent). Operational steps live in `skills/design/SKILL.md` under `/design system`.
+
+   **ABSOLUTE RULE for the variant-presentation step.** The user-facing output is **not** a chat message describing A / B / C in prose. It is a Bash call to `skills/design/scripts/generate_system_preview.py` followed by a one-line reply containing the absolute path to the rendered HTML. If your draft reply contains paragraphs like *"A. Editorial — light, warm, terra accent…"*, **discard the draft and run the script.** The user has reported "plugin just described variants in text again" twice. Do not be the third time.
+
    → DISTINCTIVENESS GATE (hard): each candidate is checked against `references/distinctiveness-gate.md`. Failed candidates are silently regenerated — the user never sees them.
    → VISUAL PREVIEW (mandatory): the agent runs `scripts/generate_system_preview.py` and gives the user a single-file HTML with three switchable variants. Apply ≠ approve — no tokens, no `.impeccable.md`, no xcassets are written until the user picks. The preview is platform-aware (web mocks for web, iOS frame for iOS, both for cross) and adapted to the brief's project context.
-   → CHECKPOINT: user opens the preview, presses 1 / 2 / 3, picks A / B / C. Skippable only on explicit user instruction.
+   → CHECKPOINT: user opens the preview, presses 1 / 2 / 3, picks A / B / C. Skippable only on explicit user instruction ("skip preview", "pick for me"). A long brief is not an implicit skip.
    → TOKEN EMISSION: only after pick. Local files (`tokens.css`, Tailwind config, shadcn theme, xcassets, SwiftUI theme) are written immediately; **Figma materialization is deferred** — it does not auto-run because materializing a full DS in Figma takes minutes; the user invokes it explicitly when ready.
    → FILTER PASS: emitted tokens must not contain Anti-Pattern colors (no lila/cyan-on-dark), must honor Design Dials.
 3. `shape [--platform]` — plan the top-level UX/UI before any code is written. Produces brief with layout, states, interactions, content strategy, open questions.
@@ -109,7 +112,7 @@ Never silently fabricate the missing artifacts and continue. A detailed chat bri
 
 **Steps:**
 
-1. `critique [--platform]` — Nielsen heuristics scoring · AI-slop detection · persona walkthroughs. Delegates to `design-critic`.
+1. `critique [--platform]` — Nielsen heuristics scoring · AI-slop detection · persona walkthroughs. Runs inline.
    → CHECKPOINT: present critique report with P0–P3 severity.
 2. **Direction modifier** *(pick one based on critique + user preference)*:
    - `bolder` — amplify safe/boring designs
@@ -137,13 +140,13 @@ Never silently fabricate the missing artifacts and continue. A detailed chat bri
 
 **Steps:**
 
-1. `audit [--platform]` — technical quality across 5 dimensions. Delegates to `design-auditor`; motion findings delegate further to `motion-auditor`.
+1. `audit [--platform]` — technical quality across 5 dimensions. Delegates to `design-auditor` (only sub-agent in this plugin); motion gap analysis is one of its dimensions.
    - **Web:** WCAG AA accessibility, Core Web Vitals, theming, responsive, Anti-Patterns
    - **Web motion:** Motion Gap Analysis (conditional renders without `AnimatePresence`, ternary swaps, dynamic styles without transition)
    - **iOS:** Dynamic Type AX5, Reduce Motion, Increase Contrast, Increase Transparency, `.accessibilityLabel/.accessibilityValue` coverage, HIG deviations
    → CHECKPOINT: scored report with P0–P3 severity + prioritized fix plan.
-2. `critique [--platform]` — second pass focused on UX heuristics. Delegates to `design-critic`.
-3. `polish [--platform]` *(with `--fix`)* — apply the fix plan. Delegates to `polish-fixer` when `--fix` is present.
+2. `critique [--platform]` — second pass focused on UX heuristics. Runs inline.
+3. `polish [--platform]` *(with `--fix`)* — apply the fix plan. Runs inline; reads the audit report and applies auto-fixable findings.
    → FILTER PASS: post-fix re-run audit to confirm severity counts went down.
 
 <!-- PIPELINE-STEP-EXTENSION: review -->

@@ -13,6 +13,18 @@ You are a senior design engineer who builds distinctive, production-grade interf
 
 ## Pipeline order is sacred — READ FIRST
 
+### The two failure modes this skill exists to prevent
+
+You are a fluent text generator. Two of your default instincts directly fight this skill. **Fight them back, every time.**
+
+1. **Skipping ahead because "context looks complete".** A detailed brief in chat is **not** a license to jump from `start` straight to `craft`. The user reported this failure. Pipeline order applies to free-form briefs too — see the Pipeline order rule below.
+
+2. **Describing variants in prose instead of rendering them.** When `/design system` asks for "3 variations", your default is to write three paragraphs of prose: *"A. Editorial — light, warm, terra accent. B. Forest-block — dark, confident, …"*. **Do not.** The skill has a Bash script that renders the three variants as a real HTML preview the user can flip through with 1/2/3 keys. The user-facing output of the variant-presentation step is **a path to that file**, not prose. The user reported this failure twice; do not be the third time.
+
+If you catch yourself drafting an A/B/C narrative — stop. Run `scripts/generate_system_preview.py`. Hand the user the path. Detailed protocol in the `/design system` section below and in [`references/pipelines.md`](references/pipelines.md) (start step 2).
+
+### Pipeline order rule
+
 **For new projects, the entry pipeline is `/design start`, not `/design make`.** A new project = no `.impeccable.md` with picked tokens, no committed `tokens.css` / `tailwind.config` / xcassets + SwiftUI theme produced by `/design system`.
 
 The order is **`start → make → refine → review → ship`**. Steps inside a pipeline are sequential. Checkpoints (3-variation pick in `system`, UX brief in `shape`, motion preview in `animate`, etc.) are **mandatory** — they are where the user makes choices.
@@ -58,22 +70,20 @@ SuperDesign is a three-layer system. Every command — whether called standalone
 
 Full diagram + extension points: [`references/architecture.md`](references/architecture.md).
 
-## Agent delegation (Claude Code only)
+## Agent delegation
 
-Six sub-agents live in `agents/`. When the Agent tool is available, the following commands delegate to them instead of running their full logic inline:
+One sub-agent lives in `agents/`:
 
-| Trigger | Sub-agent |
-|---|---|
-| `/design audit`, `/design review` step 1 | `design-auditor` |
-| `/design critique`, `/design review` step 2 | `design-critic` |
-| `/design audit` motion findings | `motion-auditor` |
-| `/design system`, `/design start` step 2 | `design-system-architect` |
-| `/design brand`, `/design logo`, `/design cip`, `/design banner`, `/design slides` | `brand-agent` |
-| `/design polish --fix`, `/design review` step 3 | `polish-fixer` |
+| Trigger | Sub-agent | Why this one is an agent |
+|---|---|---|
+| `/design audit`, `/design review` step 1 | `design-auditor` | Loads many reference files (a11y, perf, HIG, motion gap rules), greps over the whole project, returns a structured P0–P3 report. Isolating the context is a real win. |
 
-Sub-agents run in an isolated context, load their own references, and return a compact structured result with a `layer2_checklist`. They do not call each other — sequential work is orchestrated by pipelines here in SKILL.md.
+Every other command runs **inline** — directly in the main skill, using the references in the command's section below. Earlier versions of this plugin shipped six agents (system-architect, critic, motion-auditor, polish-fixer, brand-agent). They were removed because:
 
-**If the Agent tool is unavailable** (Cursor or any other environment without Claude Code sub-agents), every atomic command still works: each command's section below documents the inline fallback, which reads the same references the agent would have loaded. Behaviour is identical; only context isolation is absent.
+- Creative steps (`/design system`, `/design craft`) need to remain in the main context — there's a visual checkpoint to surface to the user, and routing it through a sub-agent meant Claude often chose not to delegate, breaking the workflow.
+- The other agents (critic, polish, brand) duplicated rules that already lived in their reference files. Keeping logic in one place — inline — is simpler and fails less.
+
+`design-auditor` survives because it's the only one with both qualities of a useful agent: heavy multi-file reads + structured report output. Everything else is a lifecycle / craft step that belongs in-line.
 
 ---
 
@@ -292,7 +302,7 @@ Focus on high-impact moments: one well-orchestrated page load > scattered micro-
 
 Cross-cutting principles live in `references/web/motion-design.md` (hub) and `references/web/motion/` (designer lenses, audit workflow). On iOS see `references/ios/motion.md` (springs > curves, scope `.animation()` to value, Reduce Motion = substitute not remove).
 
-For motion audits and designer-lens reports, `/design audit` routes motion findings to `motion-auditor` (Claude Code) or runs that logic inline (Cursor) — see `agents/motion-auditor.md` for the full checklist.
+For motion audits and designer-lens reports, `/design audit` includes a Motion Gap Analysis pass — see the audit step in [`references/pipelines.md`](references/pipelines.md) and the per-designer checklists in [`references/web/motion/`](references/web/motion/README.md).
 
 ### Interaction
 
@@ -373,9 +383,35 @@ Flow: interview → generate 3 candidates → run **Distinctiveness Gate (HARD)*
 
 The preview is platform-aware: `web` shows hero + button row + card + type specimen + palette swatches; `ios` shows a faux iPhone frame (status bar → nav title → list cells → bottom CTA → tab bar) plus type/palette panel; `cross` shows both stacked.
 
-**Routing:** If Agent tool available → delegate to `design-system-architect`. Otherwise execute inline per `agents/design-system-architect.md`. Interview, candidate generation, distinctiveness gate, preview, emission, and (on-request) Figma materialization are identical.
+**Inline execution (no agent).** Run the workflow below directly in the main skill — there is no `design-system-architect` agent. Operational checklist:
 
-Offline fallback: `python scripts/design_system.py --platform <p>`.
+1. **Context gathering.** If a brief is in chat or `.impeccable.md`, parse it. Otherwise run [`references/system/interview.md`](references/system/interview.md) one question per message.
+2. **Candidate generation (internal).** Call designlib MCP (`list_domains` → `get_domain` with `top_n=3`). For each candidate build a JSON object matching the schema in [`scripts/generate_system_preview.py`](scripts/generate_system_preview.py). The `differentiation_hook` field must be **one concrete sentence** with at least one specific anchor (font + size in px, named layout move, hex with role, named ratio). Adjective stacks fail the script's validator.
+3. **Distinctiveness gate (HARD, internal).** For each candidate, silently answer Q1, Q2, Q3, Q4, Q6, Q7 from [`references/distinctiveness-gate.md`](references/distinctiveness-gate.md). Failures → discard and regenerate. The user never sees failed candidates.
+4. **Visual preview (MANDATORY user-facing step).** Write the 3 candidates as a JSON array to a temp file (use the `Write` tool to put it in the OS temp dir), then run via `Bash`:
+
+   ```bash
+   python "<plugin-root>/skills/design/scripts/generate_system_preview.py" \
+       --candidates "<tmp.json>" --project "<name>" --platform <web|ios|cross>
+   ```
+
+   Capture the absolute HTML path the script prints. Your **single** user-facing reply at this stage is one short message containing that path:
+
+   ```
+   Three system variants ready. Open this in your browser:
+
+   <absolute-path-to-preview.html>
+
+   Press 1 / 2 / 3 to switch between A / B / C, then tell me your pick.
+   Apply ≠ approve — nothing is written to your project until you choose.
+   ```
+
+5. **Wait for the pick.** Skippable only on **explicit** user instruction ("pick for me", "skip preview"). A long brief is not an implicit skip.
+6. **Token emission (only after pick).** Web → `tokens.css` + `tailwind.config.*` + shadcn theme + `design-system.md`. iOS → xcassets + SwiftUI theme files + `design-system.md`. Cross → both, aligned. See [`references/system/web-pipeline.md`](references/system/web-pipeline.md) / [`references/system/ios-pipeline.md`](references/system/ios-pipeline.md).
+7. **Figma materialization (DEFERRED).** Do NOT auto-materialize. Run only on explicit user request via `references/figma/generate-library/` + `figma-use` skill.
+8. **Fallback.** If designlib MCP is offline → `python scripts/design_system.py --platform <p>`. Gate and preview steps still apply.
+
+**ABSOLUTE RULE — read it twice.** The variant-presentation step is a Bash call to `scripts/generate_system_preview.py` followed by a one-line message handing the user the HTML path. **Never** describe the three variants in prose. Never offer "I can render previews if you want" — they are mandatory. Never list palettes / hex / fonts in chat — they are in the rendered HTML. If you find yourself drafting an A/B/C narrative, stop and run the script instead. This is the single most-violated rule in the skill, so it is stated twice: in this section and in [`references/pipelines.md`](references/pipelines.md).
 
 ### `/design teach`
 Write the Design Context section to `.impeccable.md`. Lightweight version of `/design system` — just context capture, no token emission. Used inside `/design start`.
@@ -404,25 +440,25 @@ Build a distinctive interface from scratch (with a design system already in plac
 ## 3. Review & Quality
 
 ### `/design audit [--platform ...]`
-Technical quality checks across 5 dimensions (a11y, perf, responsive, theming, anti-patterns on web; Dynamic Type, Reduce Motion, Increase Contrast / Transparency, a11y labels, HIG on iOS). Motion gap analysis is handled by `motion-auditor`.
+Technical quality checks across 5 dimensions (a11y, perf, responsive, theming, anti-patterns on web; Dynamic Type, Reduce Motion, Increase Contrast / Transparency, a11y labels, HIG on iOS). The audit also runs a Motion Gap Analysis pass — see motion checklists in [`references/web/motion/`](references/web/motion/README.md).
 
-**Routing:** If the Agent tool is available (Claude Code), delegate to `design-auditor`. Otherwise (Cursor, other environments), execute inline by loading the same references listed in `agents/design-auditor.md` and following its dimensions and severity rubric. Output format is identical in both paths.
+**Routing:** If the Agent tool is available (Claude Code), delegate to `design-auditor` — the only sub-agent in this plugin. Otherwise (Cursor, other environments), execute inline by loading the same references listed in `agents/design-auditor.md` and following its dimensions and severity rubric. Output format is identical in both paths.
 
 Used inside `/design review` step 1.
 
 ### `/design critique [--platform ...]`
-UX evaluation: Nielsen heuristics scoring, AI-slop detection, persona walkthroughs.
+UX evaluation: Nielsen heuristics scoring, AI-slop detection (anti-patterns + Distinctiveness Gate from [`references/distinctiveness-gate.md`](references/distinctiveness-gate.md)), persona walkthroughs.
 
-**Routing:** If Agent tool available → delegate to `design-critic`. Otherwise execute inline per `agents/design-critic.md`. Output is identical.
+**Inline execution.** Two passes: (1) Nielsen heuristic scoring — go through severity, frequency, and visibility per [Nielsen's 10 heuristics](https://www.nngroup.com/articles/ten-usability-heuristics/), produce a P0–P3 rubric with concrete examples and file:line references; (2) AI-slop detection — apply the Layer 2 Anti-Patterns and Distinctiveness Gate filters to the existing UI. Report per-finding: heuristic violated, severity, file:line, suggested fix. Do not edit code.
 
 Used inside `/design refine` and `/design review`.
 
 ### `/design polish [--platform ...]`
 Final quality pass: alignment, spacing, consistency, typography, color, interaction states, micro-interactions, copy, icons, forms, edge cases, responsive (web) / Dynamic Type + Reduce Motion (iOS).
 
-**Routing for `--fix`:** If Agent tool available → delegate to `polish-fixer` with the audit report path. Otherwise execute inline per `agents/polish-fixer.md`. Output (diff summary + residuals) is identical.
+**Inline execution for `--fix`.** Read the audit report (path passed by `/design review` or referenced by user). For each P0–P1 finding tagged `auto-fixable: true`, apply the fix using `Edit`. Skip findings that need design judgment (a11y label wording, copy choices) — list them as residuals. After fixes, re-run the relevant filter pass (anti-patterns / motion / a11y) to confirm severity counts dropped. Output: `{ fixed: [...], residuals: [...], severity_before, severity_after }`.
 
-Without `--fix`, the command reports what it would change but does not edit; this narrative path stays in the main skill.
+Without `--fix`, the command reports what it would change but does not edit. Same logic, just don't call `Edit`.
 
 Used inside `/design refine` and `/design review` (with `--fix`).
 
@@ -479,7 +515,12 @@ These produce *artifacts*, not *lifecycle stages*. Call directly.
 | `/design banner` | Banners for social, ads, web, print — 22 art-direction styles, multi-platform sizing | `references/design/banner-sizes-and-styles.md` |
 | `/design slides` | Strategic HTML presentations with Chart.js, design tokens, copywriting formulas | `references/slides/` |
 
-**Routing:** If Agent tool available → delegate to `brand-agent` with `deliverable` set. Otherwise execute inline per `agents/brand-agent.md`. Output is identical.
+**Inline execution.** Each deliverable runs from its own reference (column 3 above). Common shape:
+
+1. **Discovery** — read brief / `.impeccable.md` / Design Context. For asset commands (`logo`/`cip`/`banner`), also pull style + palette + font choices that already exist in the project tokens.
+2. **Variation generation** — produce 3 candidates per deliverable. For `logo` and `banner`, candidates use **different** style families (per `references/design/`), not three flavors of the same idea — same Q6 cross-variant rule as `/design system`.
+3. **Output** — write the artifacts (HTML/SVG/markdown) to a deliverable-specific path under the project. For `slides` follow `references/slides/` for the layout patterns and copywriting formulas. For `brand` write a brand-guidelines.md from `templates/brand-guidelines-starter.md`.
+4. **Filter pass** — apply Layer 2 (Direction · Anti-Patterns · Distinctiveness Gate in soft mode for visual artifacts).
 
 ## 7. Search (standalone)
 

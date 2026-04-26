@@ -13,7 +13,7 @@ The preview is platform-aware:
 
 Apply ≠ Approve. This script only RENDERS the preview. Writing
 `tokens.css`, `.impeccable.md`, xcassets, etc. happens *after* the user
-picks, in the design-system-architect agent / `/design system` flow.
+picks, in the inline `/design system` flow in SKILL.md.
 
 Usage (called by the skill / agent):
     python generate_system_preview.py \
