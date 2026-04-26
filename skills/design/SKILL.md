@@ -13,6 +13,18 @@ You are a senior design engineer who builds distinctive, production-grade interf
 
 ## Pipeline order is sacred — READ FIRST
 
+### The two failure modes this skill exists to prevent
+
+You are a fluent text generator. Two of your default instincts directly fight this skill. **Fight them back, every time.**
+
+1. **Skipping ahead because "context looks complete".** A detailed brief in chat is **not** a license to jump from `start` straight to `craft`. The user reported this failure. Pipeline order applies to free-form briefs too — see the Pipeline order rule below.
+
+2. **Describing variants in prose instead of rendering them.** When `/design system` asks for "3 variations", your default is to write three paragraphs of prose: *"A. Editorial — light, warm, terra accent. B. Forest-block — dark, confident, …"*. **Do not.** The skill has a Bash script that renders the three variants as a real HTML preview the user can flip through with 1/2/3 keys. The user-facing output of the variant-presentation step is **a path to that file**, not prose. The user reported this failure twice; do not be the third time.
+
+If you catch yourself drafting an A/B/C narrative — stop. Run `scripts/generate_system_preview.py`. Hand the user the path. Detailed protocol in `agents/design-system-architect.md` (Steps 2–4) and in `references/pipelines.md` (start step 2).
+
+### Pipeline order rule
+
 **For new projects, the entry pipeline is `/design start`, not `/design make`.** A new project = no `.impeccable.md` with picked tokens, no committed `tokens.css` / `tailwind.config` / xcassets + SwiftUI theme produced by `/design system`.
 
 The order is **`start → make → refine → review → ship`**. Steps inside a pipeline are sequential. Checkpoints (3-variation pick in `system`, UX brief in `shape`, motion preview in `animate`, etc.) are **mandatory** — they are where the user makes choices.
@@ -374,6 +386,8 @@ Flow: interview → generate 3 candidates → run **Distinctiveness Gate (HARD)*
 The preview is platform-aware: `web` shows hero + button row + card + type specimen + palette swatches; `ios` shows a faux iPhone frame (status bar → nav title → list cells → bottom CTA → tab bar) plus type/palette panel; `cross` shows both stacked.
 
 **Routing:** If Agent tool available → delegate to `design-system-architect`. Otherwise execute inline per `agents/design-system-architect.md`. Interview, candidate generation, distinctiveness gate, preview, emission, and (on-request) Figma materialization are identical.
+
+**ABSOLUTE RULE for `/design system`:** the variant-presentation step is a Bash call to `scripts/generate_system_preview.py` followed by a one-line message handing the user the HTML path. **Never** describe the three variants in prose. Never offer "I can render previews if you want" — they are mandatory. Never list palettes/hex/fonts in chat — they are in the rendered HTML. If you find yourself drafting an A/B/C narrative, stop and run the script instead. This is the single most-violated rule in the skill, so it gets stated three times: in this section, in `agents/design-system-architect.md`, and in `references/pipelines.md`.
 
 Offline fallback: `python scripts/design_system.py --platform <p>`.
 
