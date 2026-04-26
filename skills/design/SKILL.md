@@ -153,6 +153,7 @@ Receiving a detailed brief in chat is **not** an implicit skip. A brief is input
 | [`references/architecture.md`](references/architecture.md) | Three-layer model + extension points |
 | [`references/pipelines.md`](references/pipelines.md) | Lifecycle pipeline runbooks (start/make/refine/review/ship) |
 | [`references/design-dials.md`](references/design-dials.md) | Design Dials detail (VARIANCE / MOTION / DENSITY) |
+| [`references/distinctiveness-gate.md`](references/distinctiveness-gate.md) | Pre-emit gate that catches generic-but-clean output (system → HARD, craft → SOFT) |
 | [`references/ux-writing.md`](references/ux-writing.md) | General UX writing principles |
 
 ### Web
@@ -194,6 +195,7 @@ Receiving a detailed brief in chat is **not** an implicit skip. A brief is input
 | [`data/`](data/) | CSV databases — guidelines & curated context (161 products, 67 styles, 161 colors, 57 fonts, 99 UX guidelines, 15 tech stacks, react-performance, ui-reasoning, app-interface). *Charts, landing patterns, icons live in designlib MCP.* |
 | [`scripts/search.py`](scripts/search.py) | BM25 search engine (`--platform web\|ios` flag) |
 | [`scripts/design_system.py`](scripts/design_system.py) | Design system generator (Master + Overrides pattern) — fallback when designlib MCP is offline |
+| [`scripts/generate_system_preview.py`](scripts/generate_system_preview.py) | Renders a temp HTML preview of 3 system candidates with a 1/2/3 switcher; platform-aware (web/ios/cross). Used by `/design system`. Validates each candidate's `differentiation_hook` for concreteness. |
 | [`scripts/detect-antipatterns.mjs`](scripts/detect-antipatterns.mjs) | Automated anti-pattern detector (30+ checks) |
 
 ### Templates
@@ -201,6 +203,7 @@ Receiving a detailed brief in chat is **not** an implicit skip. A brief is input
 |---|---|
 | [`templates/ios/Theme/`](templates/ios/README.md) | SwiftUI theme starters (Color/Typography/Spacing/Motion/Haptics) |
 | [`templates/web/`](templates/web/) | CSS/Tailwind/shadcn starters |
+| [`templates/system-preview.html`](templates/system-preview.html) | HTML shell consumed by `generate_system_preview.py` — top-bar + tab switcher + 3 mount points |
 | [`templates/brand-guidelines-starter.md`](templates/brand-guidelines-starter.md) | Brand guidelines document template |
 
 ---
@@ -210,6 +213,18 @@ Receiving a detailed brief in chat is **not** an implicit skip. A brief is input
 **Every pipeline step and every atomic command MUST pass candidate output through this layer before emitting.** If a filter rejects, either re-query Layer 1 with tighter constraints, or ask the user to relax the filter explicitly. Do not bypass silently.
 
 <!-- FILTER-EXTENSION: add new filter here -->
+
+## Distinctiveness Gate
+
+The Anti-Pattern filter (below) catches *technical* AI-slop (3-column rows, gradient text, side-stripe borders). It does **not** catch outputs that are technically clean and creatively forgettable — generic "premium editorial SaaS" lookalikes that any modern LLM produces in 30 seconds without the plugin.
+
+The Distinctiveness Gate is the second pre-emit filter that catches that class of failure. It asks the model — privately, before showing the user — 7 questions: the one-line takeaway, the 30-second-without-context test, the risk inventory, the named reference, the brief-shaped element, the cross-variant differentiation, the load-bearing element. Adjective answers fail; concrete answers pass.
+
+- **HARD mode** on `/design system`: failing candidates are regenerated silently. The user only ever sees variants that passed.
+- **SOFT mode** on `/design craft` and intensity modifiers: output is shown WITH a `Risks taken & gaps` block listing failed questions, so the user decides whether to refine, push further, or accept.
+- **Skipped** on `polish`, `audit`, `critique`, `review` — those have their own scoring and would double-count.
+
+Full filter spec: [`references/distinctiveness-gate.md`](references/distinctiveness-gate.md).
 
 ## Design Direction
 
@@ -350,13 +365,15 @@ Commands are platform-aware — most accept `--platform web|ios|cross` or infer 
 ### `/design system [web|ios|cross]`
 **The main system-generation command. Everything else assumes a design system exists.** Used inside `/design start`.
 
-Runs a structured interview → proposes 3 variations → on pick, emits platform-specific tokens + `design-system.md` spec.
+Flow: interview → generate 3 candidates → run **Distinctiveness Gate (HARD)** on each (failures regenerated silently) → render a **single-file HTML preview** with a 1/2/3 switcher via `scripts/generate_system_preview.py` → user opens preview, picks A/B/C → on pick, emit local tokens + `design-system.md`. **Apply ≠ approve:** nothing is written to the project until the user picks. **Figma materialization is deferred** — runs only on explicit user request, not automatically inside `system`.
 
 - **web** → `tokens.css` + `tailwind.config.*` + shadcn theme + `design-system.md`
 - **ios** → xcassets + SwiftUI theme files + `design-system.md`
 - **cross** → both, aligned
 
-**Routing:** If Agent tool available → delegate to `design-system-architect`. Otherwise execute inline per `agents/design-system-architect.md`. Interview, candidate generation, emission, and Figma materialization are identical.
+The preview is platform-aware: `web` shows hero + button row + card + type specimen + palette swatches; `ios` shows a faux iPhone frame (status bar → nav title → list cells → bottom CTA → tab bar) plus type/palette panel; `cross` shows both stacked.
+
+**Routing:** If Agent tool available → delegate to `design-system-architect`. Otherwise execute inline per `agents/design-system-architect.md`. Interview, candidate generation, distinctiveness gate, preview, emission, and (on-request) Figma materialization are identical.
 
 Offline fallback: `python scripts/design_system.py --platform <p>`.
 
@@ -376,6 +393,9 @@ Pull reusable components + design tokens from screenshots or existing interfaces
 Build a distinctive interface from scratch (with a design system already in place). Gathers page-level context → makes design decisions → implements working code. Used inside `/design make`.
 
 **Pre-check (BLOCKING):** committed project tokens + a UX intent (either `shape` brief or explicit user instruction). If missing, surface once: *"No design system / UX brief found. Running `craft` will fabricate tokens you didn't choose. Want `/design start` first, or proceed?"* Do not silently invent tokens and continue. Same rule applies whether `craft` is called via `/design make` or directly.
+
+**Distinctiveness gate (SOFT):** before responding with the built page, run [`references/distinctiveness-gate.md`](references/distinctiveness-gate.md) Q1–Q7 on the output. Then **append a `Risks taken & gaps` block to the response** showing each Q's pass/fail and the concrete answer. The user reads it and decides whether to keep, refine via `/design bolder` / `/design overdrive`, or discard. Do not regenerate silently — full pages are too expensive to throw away on the model's judgment, but the user must see what risks the model took (or didn't).
+
 → *Web workflow:* [`references/web/craft.md`](references/web/craft.md)
 → *iOS:* load relevant `references/ios/*` based on surfaces being built (navigation, modals, toolbar, etc.)
 

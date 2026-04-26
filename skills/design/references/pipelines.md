@@ -42,7 +42,10 @@ Treating a detailed brief as license to skip `system` (the 3-variation pick) and
    → CHECKPOINT: show the captured context; user confirms or corrects.
    → SKIPPABLE WHEN: a complete brief is already in chat **and** the user confirms it; or `.impeccable.md` already has a Design Context section. Even when skipped, write the captured context to `.impeccable.md` so later steps can read it.
 2. `system [--platform]` — run the structured interview, propose 3 variations, emit tokens. Delegates to `design-system-architect` in Claude Code; runs inline in Cursor. Same output either way.
-   → CHECKPOINT: show the 3 variations with differentiation hooks; user picks one. **This checkpoint is mandatory unless the user explicitly says "skip variations" / "pick for me" / equivalent.** A detailed brief specifying colors and tone does NOT auto-skip this step — the 3 variations are about aesthetic *direction*, which the brief never fully fixes.
+   → DISTINCTIVENESS GATE (hard): each candidate is checked against `references/distinctiveness-gate.md`. Failed candidates are silently regenerated — the user never sees them.
+   → VISUAL PREVIEW (mandatory): the agent runs `scripts/generate_system_preview.py` and gives the user a single-file HTML with three switchable variants. Apply ≠ approve — no tokens, no `.impeccable.md`, no xcassets are written until the user picks. The preview is platform-aware (web mocks for web, iOS frame for iOS, both for cross) and adapted to the brief's project context.
+   → CHECKPOINT: user opens the preview, presses 1 / 2 / 3, picks A / B / C. Skippable only on explicit user instruction.
+   → TOKEN EMISSION: only after pick. Local files (`tokens.css`, Tailwind config, shadcn theme, xcassets, SwiftUI theme) are written immediately; **Figma materialization is deferred** — it does not auto-run because materializing a full DS in Figma takes minutes; the user invokes it explicitly when ready.
    → FILTER PASS: emitted tokens must not contain Anti-Pattern colors (no lila/cyan-on-dark), must honor Design Dials.
 3. `shape [--platform]` — plan the top-level UX/UI before any code is written. Produces brief with layout, states, interactions, content strategy, open questions.
    → CHECKPOINT: present the brief; user approves or lists revisions. Skippable only on explicit user instruction.

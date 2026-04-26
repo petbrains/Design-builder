@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{{PROJECT_NAME}} — system preview · pick A / B / C</title>
+<style>
+  /* ---------- shell ---------- */
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: #111;
+    background: #f3f3f0;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .shell {
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+  /* ---------- top bar ---------- */
+  .bar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px;
+    padding: 14px 22px;
+    background: rgba(243,243,240,.92);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid rgba(0,0,0,.08);
+  }
+  .bar h1 {
+    font-size: 13px; font-weight: 500; letter-spacing: .02em;
+    text-transform: uppercase; color: #666;
+  }
+  .bar .meta { font-size: 12px; color: #888; font-feature-settings: "tnum"; }
+  .switch { display: flex; gap: 6px; }
+  .switch button {
+    appearance: none; border: 1px solid rgba(0,0,0,.14); background: #fff;
+    padding: 7px 14px; border-radius: 999px; cursor: pointer;
+    font: inherit; font-weight: 500; font-size: 13px; color: #222;
+    transition: background .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;
+  }
+  .switch button:hover { transform: translateY(-1px); }
+  .switch button[aria-pressed="true"] {
+    background: #111; border-color: #111; color: #fff;
+  }
+  .switch kbd {
+    display: inline-block; min-width: 16px; padding: 0 4px; margin-right: 6px;
+    background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.0);
+    border-radius: 3px; font-size: 11px; font-family: ui-monospace, "JetBrains Mono", monospace;
+  }
+  .switch button[aria-pressed="false"] kbd {
+    background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.08);
+  }
+  /* ---------- pages ---------- */
+  .pages { position: relative; }
+  .page {
+    display: none;
+    padding: 0;
+  }
+  .page[data-active="true"] { display: block; }
+  /* ---------- footer ---------- */
+  .foot {
+    padding: 16px 22px;
+    border-top: 1px solid rgba(0,0,0,.08);
+    background: #fff;
+    display: flex; justify-content: space-between; gap: 18px;
+    font-size: 12px; color: #666;
+  }
+  .foot strong { color: #111; }
+  .foot code {
+    font-family: ui-monospace, "JetBrains Mono", monospace;
+    background: rgba(0,0,0,.05); padding: 2px 6px; border-radius: 4px;
+  }
+
+  /* ---------- variant frame (resets host body inside the page) ---------- */
+  .variant {
+    min-height: calc(100dvh - 110px);
+  }
+
+  /* ============================================================
+     Per-variant skin styles. Each variant scopes itself with
+     [data-variant="A|B|C"] so we can ship 3 fully-distinct moods
+     without naming collisions.
+     ============================================================ */
+  {{VARIANT_CSS}}
+</style>
+</head>
+<body>
+  <div class="shell">
+    <header class="bar" role="banner">
+      <h1>{{PROJECT_NAME}} · system preview · {{PLATFORM}}</h1>
+      <div class="switch" role="tablist" aria-label="Variant switcher">
+        <button type="button" role="tab" data-target="A" aria-pressed="true"><kbd>1</kbd>A · {{VARIANT_A_NAME}}</button>
+        <button type="button" role="tab" data-target="B" aria-pressed="false"><kbd>2</kbd>B · {{VARIANT_B_NAME}}</button>
+        <button type="button" role="tab" data-target="C" aria-pressed="false"><kbd>3</kbd>C · {{VARIANT_C_NAME}}</button>
+      </div>
+      <div class="meta">press <code style="font-family:ui-monospace;background:rgba(0,0,0,.05);padding:1px 5px;border-radius:3px">1</code> / <code style="font-family:ui-monospace;background:rgba(0,0,0,.05);padding:1px 5px;border-radius:3px">2</code> / <code style="font-family:ui-monospace;background:rgba(0,0,0,.05);padding:1px 5px;border-radius:3px">3</code> · then tell the assistant your pick</div>
+    </header>
+
+    <main class="pages">
+      <section class="page" data-active="true" data-page="A">
+        <div class="variant" data-variant="A">{{VARIANT_A_HTML}}</div>
+      </section>
+      <section class="page" data-active="false" data-page="B">
+        <div class="variant" data-variant="B">{{VARIANT_B_HTML}}</div>
+      </section>
+      <section class="page" data-active="false" data-page="C">
+        <div class="variant" data-variant="C">{{VARIANT_C_HTML}}</div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>How to use: open this in a browser, press <strong>1 / 2 / 3</strong> to switch, then tell the assistant which one you pick (A, B or C).</span>
+      <span>Generated <strong>{{GENERATED_AT}}</strong></span>
+    </footer>
+  </div>
+
+<script>
+  (function () {
+    var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
+    var btns  = Array.prototype.slice.call(document.querySelectorAll('.switch button'));
+    function activate(target) {
+      pages.forEach(function (p) { p.dataset.active = (p.dataset.page === target); });
+      btns.forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.target === target ? 'true' : 'false'); });
+      try { history.replaceState(null, '', '#' + target); } catch (e) {}
+    }
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () { activate(b.dataset.target); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.target && /input|textarea/i.test(e.target.tagName)) return;
+      if (e.key === '1') activate('A');
+      else if (e.key === '2') activate('B');
+      else if (e.key === '3') activate('C');
+    });
+    var initial = (location.hash || '').replace('#', '').toUpperCase();
+    if (initial === 'A' || initial === 'B' || initial === 'C') activate(initial);
+  })();
+</script>
+</body>
+</html>
