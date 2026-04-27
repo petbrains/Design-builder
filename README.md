@@ -2,8 +2,6 @@
 
 Build distinctive production-grade interfaces on **web** and **iOS** through 4 user-facing commands. A knowledge-base skill (anti-patterns, motion, HIG, BM25 search) backed by `designlib` MCP (palettes, fonts, **inspiration_pages**, landing_patterns, icons) does the heavy lifting; you stay in conversation with one of four entry points.
 
-> **v2.0** — full rebrand from `superdesign 1.2`. Command-based architecture replaces the 22+ atomic / 5-pipeline model. See [CHANGELOG.md](CHANGELOG.md). For 1.2, pin to commit `f43fdcc`.
-
 Built on top of five open-source projects: [Impeccable](https://github.com/pbakaus/impeccable), [Emil Kowalski Design Skill](https://emilkowal.ski/skill), [Taste Skill](https://github.com/Leonxlnx/taste-skill), [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill), and [Design Motion Principles](https://github.com/kylezantos/design-motion-principles). See [NOTICE.md](NOTICE.md).
 
 ## The 4 commands
