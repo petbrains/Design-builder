@@ -1,18 +1,18 @@
 {
-  "name": "superdesign-marketplace",
+  "name": "design-builder-marketplace",
   "owner": {
     "name": "Roman Pluzhnikov",
     "email": "pluzhnikov137@gmail.com"
   },
   "metadata": {
-    "description": "SuperDesign plugin marketplace — production-grade design tooling for Claude Code (and Cursor)",
-    "version": "1.2.0"
+    "description": "Design Builder plugin marketplace — 4-command design tooling for Claude Code, with inspiration_pages-driven page generation",
+    "version": "2.0.0"
   },
   "plugins": [
     {
-      "name": "superdesign",
+      "name": "design-builder",
       "source": "./",
-      "description": "Unified design skill for web + iOS with 22+ commands, visual /design system preview, distinctiveness gate, designer motion perspectives, iOS HIG refs, BM25 search, and anti-pattern detection. Claude Code + Cursor.",
+      "description": "4 commands (/setup, /create, /improve, /review) for web + iOS design. Knowledge-base skill backed by designlib MCP (inspiration_pages, palettes, styles, fonts), iOS HIG refs, designer motion perspectives, anti-pattern detection.",
       "category": "design",
       "tags": ["design-system", "ui", "ux", "web", "ios", "motion", "figma"]
     }

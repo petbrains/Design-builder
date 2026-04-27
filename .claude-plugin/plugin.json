@@ -1,14 +1,14 @@
 {
-  "name": "superdesign",
-  "version": "1.2.0",
-  "description": "Unified design skill for web + iOS. 22+ commands across 5 lifecycle pipelines, with `design-auditor` sub-agent for isolated audits. Visual preview for /design system + Distinctiveness Gate filter. Cursor-compatible via root plugin.json. Backed by BM25 search, iOS HIG refs, designer motion perspectives, and anti-pattern detection.",
+  "name": "design-builder",
+  "displayName": "Design Builder",
+  "version": "2.0.0",
+  "description": "Build distinctive production-grade interfaces on web + iOS through 4 user-facing commands (/setup, /create, /improve, /review). Knowledge-base skill (anti-patterns, motion, HIG, BM25 search) + designlib MCP for authoritative palettes/fonts/inspiration_pages. Evolved from superdesign 1.2.",
   "author": {
     "name": "Roman Pluzhnikov",
     "email": "pluzhnikov137@gmail.com"
   },
-  "homepage": "https://github.com/petbrains/superdesign",
-  "repository": "https://github.com/petbrains/superdesign",
-  "license": "MIT",
+  "homepage": "https://github.com/petbrains/design-builder",
+  "repository": "https://github.com/petbrains/design-builder",
   "keywords": [
     "design",
     "design-system",
@@ -17,24 +17,9 @@
     "web",
     "ios",
     "motion",
-    "typography",
-    "color",
-    "figma",
-    "tailwind",
-    "shadcn",
-    "swiftui",
-    "hig",
-    "accessibility",
-    "anti-patterns"
+    "figma"
   ],
-  "mcpServers": {
-    "designlib": {
-      "type": "http",
-      "url": "https://designlib-production.up.railway.app/mcp"
-    },
-    "figma": {
-      "type": "http",
-      "url": "https://mcp.figma.com/mcp"
-    }
-  }
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "mcpServers": "./.mcp.json"
 }
