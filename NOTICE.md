@@ -1,6 +1,6 @@
 # Attribution & Notices
 
-This unified design plugin combines work from five open-source projects plus the official Figma MCP Server Guide. Each contributor's work is credited below.
+The `design-builder` plugin combines work from five open-source projects plus the official Figma MCP Server Guide. Each contributor's work is credited below.
 
 ## Source Projects
 
