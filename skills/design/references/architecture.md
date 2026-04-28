@@ -72,7 +72,7 @@ Sources resolved via `get_design_reference(type, filters)`:
 4. iOS HIG — `references/ios/` (when `platform='ios'`).
 5. Free generation — last resort.
 
-Full contract: [`layer1-resolvers.md`](layer1-resolvers.md). inspiration_pages schema: [`inspiration_pages.md`](inspiration_pages.md). Command map: [`commands.md`](commands.md).
+Full contract: [`layer1-resolvers.md`](layer1-resolvers.md). inspiration_pages schema: [`inspiration_pages.md`](inspiration_pages.md). Per-command contracts live in `commands/*.md` themselves.
 
 ## Extension points
 
