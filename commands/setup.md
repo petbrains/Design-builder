@@ -32,9 +32,21 @@ Resolve direction candidates through `get_design_reference()` (see `skills/desig
 
 Also **inspiration_pages are web-only** — if the project is iOS or cross, the resolver auto-falls-back to `landing_patterns` for page references; surface this in the user-facing card.
 
+**Vocabulary check (mandatory before any list query).** Call `mcp__designlib__list_inspiration_page_facets`, `mcp__designlib__list_palette_facets`, `mcp__designlib__list_font_pair_facets` once each. Map the user's mood/direction language from `interview.md` to actual facet values BEFORE building filters. The user's interview language is almost never in the library vocab (e.g. `cinematic`, `nocturnal`, `editorial-luxury` — none of these are MCP facets). Build a mapping table in your scratchpad:
+
+| User's word | MCP-vocab fallback |
+|---|---|
+| cinematic | moody + confident |
+| nocturnal/astral | appearance=dark + mysterious |
+| scientific | clinical + techy |
+
+Show the mapping to the user only if the translation is non-obvious or lossy.
+
 1. Call `get_design_reference(type='palette', filters={industry, mood: <one>, audience}, limit=4)`.
 2. Call `get_design_reference(type='font_pair', filters={industry, mood: <one>}, limit=4)`.
 3. Call `get_design_reference(type='page', filters={page_type='marketing_landing', mood: <one>, style_family: <one or omitted>}, limit=6)` — to ground in real examples. If you want to mix moods, call this 2-3 times with different `mood` values and dedupe by `id`.
+
+**Structural axis (mandatory if user banned typical structure).** If `interview.md` Q7 captured a constraint like "не типичная структура лендинга" / "non-standard layout" / "off-grid" / VARIANCE ≥ 7 in dials, ALSO call `list_inspiration_pages` filtered by `signature` (e.g. `off_grid`, `asymmetric`, `scroll_narrative`, `editorial_layout`) — at least one candidate must be anchored on a structurally distinctive page, not just a visually distinctive one. Otherwise the system you ship will look bold but `/create` will reproduce a classic linear landing on top of it.
 
 From these, assemble **2-3 direction candidates**. Each candidate combines:
 
@@ -76,7 +88,15 @@ Wait for the user's pick. Skippable only on explicit user instruction ("pick for
 Write the chosen direction to:
 
 - `design/system.md` — full system spec: direction name, mood, palette with role assignments, typography pairs, spacing scale, motion baseline, the four Anti-Pattern bans (BAN 1-4), `not_recommended_for` notes from the source inspiration_pages.
+
+  **Lift the prose triad from the deep-fetched anchor pages into a `## Structural intent` section.** Quote `why_it_works` and `generation_prompt` from each primary anchor verbatim. These are the load-bearing UX rationale — they tell `/create` later WHY the reference looks the way it does (e.g. "stealth + discovery via section ordering", "tight grid + denser type carries trust"). Without this section, `/create` only sees palette + typography and reverts to default linear posture. Treat this as a hard requirement, not optional flavor text.
+
+  **Add a `## Layout posture` section** if the user banned typical structure or VARIANCE ≥ 7. State the required posture in one sentence (e.g. "section sequence MUST include at least one of: off-grid asymmetric block, scroll-narrative pinned section, or section-order break — never a default hero → 3-col features → CTA chain"). `/create` Phase 5 step 5 reads this as the layout-distinctiveness gate.
+
 - `design/tokens.css` — CSS custom properties for all palette + typography + spacing. Use `templates/web/` starters if the platform is web. For iOS, write `design/tokens.json` instead and create SwiftUI theme files per `templates/ios/Theme/`.
+
+  **Dark-theme nav contrast.** If `appearance=dark`, emit a separate token `--ink-muted-strong` (~6.5-7:1 against `--surface-default`) in addition to `--ink-muted` (~4.5-5.5:1). Annotate in `system.md`: "use `--ink-muted-strong` for nav links, eyebrows ≤13px, footer copy at small sizes; `--ink-muted` only for ≥14px secondary text." Otherwise nav links wash out — documented v2.0 issue from Lumen test where `--ink-muted #7A7E8C` against `#0A0B10` (~5.3:1) read as borderline at 12px.
+
 - `design/interview.md` — append a `## Final decision` section with timestamp, chosen candidate name, source IDs, and any user customisations.
 
 Confirm files written by listing them with their byte sizes.

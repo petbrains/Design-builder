@@ -66,6 +66,26 @@ The common mistake: using the accent color everywhere because it's "the brand co
 
 **The gotcha**: Placeholder text still needs 4.5:1. That light gray placeholder you see everywhere? Usually fails WCAG.
 
+### Dark themes — the nav-link / small-mono trap
+
+On dark backgrounds (`#0A0B10` and similar), a single muted-ink token at ~5:1 ratio passes AA on paper but visually washes out on small text — nav links at 12-13px, mono eyebrows with tracking at 11px, footer copy at small sizes. AA is a floor, not a target; "technically AA" reads as dim.
+
+The fix is a **two-tier muted-ink system**, not a single `--ink-muted`:
+
+| Token | Contrast vs `surface_default` | Use for |
+|---|---|---|
+| `--ink-muted` | 4.5–5.5:1 | Body secondary text ≥14px |
+| `--ink-muted-strong` | 6.5–7.0:1 | Nav links, eyebrows, mono labels at 11–13px, footer small copy |
+
+Documented test failure (Lumen v2.0 audit): `--ink-muted: #7A7E8C` on `#0A0B10` was 5.3:1, technically AA, but nav links at 12px read as borderline-invisible against the surface and users reported "switchers wash out".
+
+Alternatives if you don't want a second token:
+- Bump `--ink-muted` itself toward `#9095A4` (~6.5–6.8:1) globally and accept that "secondary" body becomes slightly stronger.
+- Use accent on hover/focus for nav links (gives them an active state instead of relying on resting contrast).
+- Underline-on-hover with `text-decoration-thickness: 1px` and `text-underline-offset: 4px` — gives nav links a structural presence beyond hue.
+
+`/setup` Phase 5 emits `--ink-muted-strong` automatically when `appearance=dark`; if you're authoring tokens by hand, do the same.
+
 ### Dangerous Color Combinations
 
 These commonly fail contrast or cause readability issues:
