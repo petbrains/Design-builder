@@ -6,7 +6,7 @@ description: designlib MCP — authoritative catalog of styles, palettes, font p
 # designlib MCP
 
 **Server (hosted):** `https://designlib-production.up.railway.app/mcp` (HTTP, read-only)
-**Catalog:** 67 styles · 100 palettes · 34 font pairs · 134 domains · web + iOS
+**Catalog:** 67 styles · 100 palettes · 34 font pairs · 134 domains · 405 inspiration_pages · 120 animations · web + iOS
 
 designlib is a curated, hand-maintained source of truth for design tokens. It replaces LLM guessing (invented hex codes, random font pairings) with retrieval. When available, it is the **primary** source for styles/palettes/fonts/domain recommendations in this skill.
 
@@ -25,7 +25,7 @@ Before using designlib tools, verify availability:
 - Tool list contains `mcp__<prefix>__list_styles` or similar — proceed
 - Not in tool list — fall back to `scripts/search.py` with equivalent CSV queries and tell the user: *"designlib MCP not connected; using local CSV fallback. Install: `claude mcp add --transport http designlib https://designlib-production.up.railway.app/mcp`"*
 
-## Tools (12, all read-only)
+## Tools (15, all read-only)
 
 All responses: `{items, total_count, limit, offset, meta: {schema_version, platform, entity_type, truncated}}`.
 Unknown IDs: `{error_code: "NOT_FOUND", message, field, suggest_tool}`.
@@ -44,6 +44,9 @@ Unknown IDs: `{error_code: "NOT_FOUND", message, field, suggest_tool}`.
 | `list_domain_facets` | — | Valid category/audience/tone |
 | `list_domains` | `category_id?`, `audience?`, `tone?`, `limit`, `offset` | Platform-agnostic domain catalog |
 | `get_domain` | `domain_id`, `platform`, `top_n=5` | Domain + top-N style/palette/font recs per platform |
+| `list_animation_facets` | — | Valid category/framework/interactivity/complexity/style_tag/placement/use_when/library values |
+| `list_animations` | `category?`, `framework?`, `interactivity?`, `complexity?`, `style_tag?`, `placement?`, `use_when?`, `library?`, `keyword?`, `limit=50`, `offset=0` | Shortlist React component animations (singular filter values per call) |
+| `get_animation` | `animation_id` | Full record incl. verbatim TSX in `prompt_text`, `libraries[]`, `placement[]`, `interactivity` |
 
 ## Canonical workflows
 
@@ -96,6 +99,8 @@ Responses >25 000 chars are truncated with `meta.truncated=true`. Only happens o
 |---|---|
 | Web UX guidelines, tech-stack specifics, anti-patterns | local CSV (`scripts/search.py`) |
 | Charts, landing patterns, icons | **designlib MCP** (`list_chart_types` / `list_landing_patterns` / `list_icons`) |
+| Whole-page web references (palette + typography + sections + generation_prompt) | **designlib MCP** (`list_inspiration_pages` / `get_inspiration_page`) — see `references/inspiration_pages.md` |
+| Animations (React component recipes — hero / background / text-effect / loader / overlay) | **designlib MCP** (`list_animations` / `get_animation`) — see `references/animations.md` |
 | iOS-native HIG details (materials, haptics, gestures, Liquid Glass specifics) | `references/ios/` |
 | Brand identity, logos, CIP, slides, banners | `references/brand/`, `references/design/`, `references/slides/` |
 | Tokens for a concrete product domain/platform | **designlib MCP** (this doc) |

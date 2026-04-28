@@ -6,7 +6,7 @@
 
 ```
 get_design_reference(
-  type:   'page' | 'palette' | 'style' | 'font_pair' | 'icon'
+  type:   'page' | 'animation' | 'palette' | 'style' | 'font_pair' | 'icon'
         | 'landing_pattern' | 'chart_type' | 'domain'
         # future, KB-EXTENSION:
         | 'hero' | 'cta' | 'paywall' | 'pricing_table',
@@ -119,6 +119,7 @@ Use this pattern in `/setup` and `/create` when the user's brief implies more th
 | `type`              | MCP tool                                              | Notes                                              |
 |---------------------|-------------------------------------------------------|----------------------------------------------------|
 | `'page'`            | `mcp__designlib__list_inspiration_pages`              | Plus `mcp__designlib__get_inspiration_page(page_id=...)` for deep-fetch by ID. **Web-only**. |
+| `'animation'`       | `mcp__designlib__list_animations`                     | Plus `mcp__designlib__get_animation(animation_id=...)` for deep-fetch by ID. **Web/React-only** (iOS/Vue/vanilla → resolver returns `[]`, no fallback). 120 records; verbatim TSX in `prompt_text`. See `references/animations.md`. |
 | `'palette'`         | `mcp__designlib__list_palettes`                       | -                                                  |
 | `'style'`           | `mcp__designlib__list_styles`                         | -                                                  |
 | `'font_pair'`       | `mcp__designlib__list_font_pairs`                     | -                                                  |
@@ -162,6 +163,22 @@ inspiration_pages are web-only; for `platform='ios'` the resolver auto-falls-bac
 
 (See `inspiration_pages.md` for vocab and field semantics.)
 
+### `type='animation'` (additions)
+
+All filter values are **single strings** (multi-value = multi-call + dedupe by `id`).
+
+- `category?: 'background' | 'hero' | 'loader' | 'text_effect' | 'element' | 'cursor_effect' | 'overlay' | 'decoration'` — closed vocab.
+- `framework?: 'react' | 'vanilla_html'` — closed vocab. Default `react` (catalog is 120/120 React today).
+- `interactivity?: 'static' | 'hover' | 'click' | 'cursor_track' | 'scroll' | 'mount_only'` — closed vocab.
+- `complexity?: 'light' | 'medium' | 'heavy'` — closed vocab. Map from `MOTION_INTENSITY` (1-4 → light, 5-7 → medium, 8-10 → heavy).
+- `style_tag?: string` — open vocab (e.g. `dark`, `minimal`, `3d`, `gradient`, `glass`). See `references/animations.md` for the live values + mood→style_tag map.
+- `placement?: string` — open vocab (e.g. `hero`, `background`, `inline`, `fullscreen`).
+- `use_when?: string` — open vocab situational tags (e.g. `dark_landing_page`, `product_showcase`, `interactive_demo`).
+- `library?: string` — open vocab npm package name (`framer-motion`, `three`, `gsap`, ...).
+- `keyword?: string` — open vocab; free-form BM25-style narrowing.
+
+Animations are React-only — the resolver returns `[]` for iOS / cross / Vue / static-HTML callers without invoking MCP. There is no fallback (no CSV / HIG / free-generation path for animations); callers should skip the integration phase entirely on `[]`. See `references/animations.md` for vocab + field semantics.
+
 ### `type='palette'` (additions)
 - `palette_strategy?: string`
 - `contrast_character?: string`
@@ -186,3 +203,33 @@ Always include `source` from the result in any `Next:` block or report you emit,
 ## Layer 2 still applies
 
 The resolver returns candidates. Whatever you do with them, **the candidate output of the command must still pass through all 6 Layer 2 filters** (Design Direction, Dials, Aesthetics, Anti-Patterns, Distinctiveness Gate, Output Rules) before emit. The resolver supplies facts; filters gate output. Don't conflate them.
+
+## VARIANCE-driven structural axis (mandatory at high VARIANCE)
+
+When a caller resolves `type='page'` with `VARIANCE >= 7` (read from `design/interview.md` or explicit user instruction), the filter MUST include at least one structural axis — `signature` (e.g. `off_grid`, `asymmetric`, `scroll_narrative`, `editorial_layout`) or `good_for_stage` matched to the page's anchor section.
+
+Reason (documented v2.0 test failure on Lumen): mood-only filtering at high VARIANCE returned visually-on-brief but structurally-typical pages (xAI welcome + Synapse — both visually distinctive but both linear lengthwise). The system shipped looked bold but `/create` reproduced a classic `hero → stats → 2× feature-split → CTA → footer` chain on top of it. Without a structural axis in the resolver call, the dial never reached layout.
+
+If the user explicitly banned typical structure in `interview.md` Q7, treat it as `VARIANCE = 10` regardless of dial — structural axis is non-negotiable.
+
+Resolver implementations should warn (not block) when called with `VARIANCE >= 7` and no structural axis in `filters`:
+
+> "Warning: VARIANCE=9 but filter lacks `signature` or `good_for_stage`. Result will be mood-only — likely visually-on-brief but structurally-typical pages. Add a structural axis or expect generic layout."
+
+## Per-section anchor pattern
+
+For multi-section page generation (e.g. `/create` on a marketing landing), a single page-level anchor is INSUFFICIENT. After the user picks the page-level anchor, run an additional resolver call per section type:
+
+```python
+for section in deep_fetched_page.sections:
+    stage = map_section_to_good_for_stage(section)
+    section_anchors = get_design_reference(
+        type='page',
+        filters={'good_for_stage': stage, 'mood': system.mood, 'appearance': system.appearance},
+        limit=2
+    )
+    if section_anchors:
+        deep_fetch(section_anchors[0])  # capture composition language
+```
+
+Cost: N additional list calls (typically 4-6 for a landing). Without this loop, sections 3-N collapse to defaults — documented as the v2.0 Lumen failure where StatsBand / FinalCTA / FeatureGrid had no per-section anchor and reverted to "3 numerals horizontally" / "headline + button left-aligned" / "4-cell data row". The page-level anchor only carries the hero.

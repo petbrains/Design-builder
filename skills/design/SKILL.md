@@ -1,6 +1,6 @@
 ---
 name: design
-description: "Knowledge base and rules for the design-builder plugin. Three-layer model (commands -> filters -> knowledge base) for building distinctive production-grade interfaces on web + iOS. Backed by designlib MCP (palettes, fonts, inspiration_pages, landing_patterns, icons), iOS HIG references (iOS 18/26 Liquid Glass), designer motion perspectives (Emil/Jakub/Jhey), anti-pattern detection. This skill is the source of truth — actions live in the plugin's commands/."
+description: "Knowledge base and rules for the design-builder plugin. Three-layer model (commands -> filters -> knowledge base) for building distinctive production-grade interfaces on web + iOS. Backed by designlib MCP (palettes, fonts, inspiration_pages, landing_patterns, icons, animations), iOS HIG references (iOS 18/26 Liquid Glass), designer motion perspectives (Emil/Jakub/Jhey), anti-pattern detection. This skill is the source of truth — actions live in the plugin's commands/."
 user-invocable: false
 ---
 
@@ -55,7 +55,6 @@ If you find yourself drafting a generic A/B/C narrative — stop. Use the struct
 **THE RULE:** every command emits design output by (1) resolving facts through Layer 1 in the fixed source order, (2) gating output through all six Layer 2 filters, in that order. Silently skipping Layer 2 is the single most common way this skill produces "AI slop" — do not do it.
 
 Architecture detail + extension points: [`references/architecture.md`](references/architecture.md).
-Command map (which command emphasises which filter, where output goes): [`references/commands.md`](references/commands.md).
 
 ## Agent delegation
 
@@ -76,7 +75,7 @@ All Layer 1 access goes through `get_design_reference(type, filters)`. See [`ref
 ## Source order (strict)
 
 1. **Project tokens** — `design/tokens.css`, `design/system.md`, `tailwind.config.*`, `*.xcassets`. Read when a command wants "use what the user has".
-2. **designlib MCP** — primary source for most types. New in v2.0: `inspiration_pages` (whole-page references with palette / typography / sections / generation_prompt) via `list/get_inspiration_pages`. Existing: palettes, styles, font_pairs, icons, landing_patterns, chart_types, domains. **Filters are SINGULAR** (one mood, one signature, one keyword); to combine values, call multiple times and dedupe.
+2. **designlib MCP** — primary source for most types. New in v2.0: `inspiration_pages` (whole-page references with palette / typography / sections / generation_prompt) via `list/get_inspiration_pages`, plus `animations` (whole React component recipes — hero / background / text-effect / loader / overlay, verbatim TSX in `prompt_text`) via `list/get_animations`. Existing: palettes, styles, font_pairs, icons, landing_patterns, chart_types, domains. **Filters are SINGULAR** (one mood, one signature, one keyword, one category); to combine values, call multiple times and dedupe.
 3. **Local CSV** — [`scripts/search.py`](scripts/search.py) over `data/`. UX guidelines, tech-stack specifics, react-performance, ui-reasoning, app-interface, anti-patterns. (Charts, landing_patterns, icons → designlib MCP, no longer local.)
 4. **iOS HIG references** — [`references/ios/`](references/ios/README.md). Apple-specific rules. Use when filters specify `platform='ios'`.
 5. **Free generation** — last resort. Mark `source='free'` on the result.
@@ -116,6 +115,7 @@ Where to find: `design/interview.md` (written by `/setup`), or by reading the pr
 |---|---|
 | [`references/designlib-mcp.md`](references/designlib-mcp.md) | designlib MCP guide |
 | [`references/inspiration_pages.md`](references/inspiration_pages.md) | inspiration_pages schema map (vocab, filters, field semantics) |
+| [`references/animations.md`](references/animations.md) | animations schema map (vocab, filters, field semantics, mood→style_tag map) |
 | [`references/layer1-resolvers.md`](references/layer1-resolvers.md) | `get_design_reference()` contract + MCP_TOOL_MAP |
 | [`references/system/web-pipeline.md`](references/system/web-pipeline.md) | Web token output (tokens.css, Tailwind, shadcn) |
 | [`references/system/ios-pipeline.md`](references/system/ios-pipeline.md) | iOS token output (xcassets, SwiftUI theme files) |
@@ -124,7 +124,6 @@ Where to find: `design/interview.md` (written by `/setup`), or by reading the pr
 | Path | Purpose |
 |---|---|
 | [`references/architecture.md`](references/architecture.md) | Three-layer model + extension points |
-| [`references/commands.md`](references/commands.md) | Command map (filter emphasis, output folder, fallbacks) |
 | [`references/design-dials.md`](references/design-dials.md) | Design Dials detail (VARIANCE / MOTION / DENSITY) |
 | [`references/distinctiveness-gate.md`](references/distinctiveness-gate.md) | Pre-emit gate; HARD on `/setup`, SOFT on `/create`, evaluator inside `/review` |
 | [`references/ux-writing.md`](references/ux-writing.md) | General UX writing principles |
@@ -191,10 +190,11 @@ Where to find: `design/interview.md` (written by `/setup`), or by reading the pr
 
 The Anti-Pattern filter catches *technical* AI-slop (3-column rows, gradient text, side-stripe). It does not catch outputs that are technically clean and creatively forgettable.
 
-The Distinctiveness Gate asks the model — privately, before showing the user — 7 questions: one-line takeaway, 30-second-without-context test, risk inventory, named reference, brief-shaped element, cross-variant differentiation, load-bearing element. Adjective answers fail; concrete answers pass.
+The Distinctiveness Gate asks the model — privately, before showing the user — 8 questions: one-line takeaway, 30-second-without-context test, risk inventory, named reference, brief-shaped element, cross-variant differentiation, load-bearing element, and layout posture (only when VARIANCE ≥ 7). Adjective answers fail; concrete answers pass.
 
 - **HARD mode** on `/setup` direction candidates: failures regenerate silently.
-- **SOFT mode** on `/create` page output: shown WITH a `Risks taken & gaps` block.
+- **HARD-with-1-retry** on `/create` page output: first failure regenerates once with a changed input; second failure emits SOFT with a `Risks taken & gaps` block.
+- **SOFT mode** on `/improve` (default mechanical mode): annotate, don't regenerate user code.
 - **Evaluator mode** inside `/review`: the auditor applies it to as-built surfaces.
 
 Full spec: [`references/distinctiveness-gate.md`](references/distinctiveness-gate.md).
@@ -264,40 +264,6 @@ If you showed this interface to someone and said "AI made this," would they beli
 - No `window.addEventListener('scroll')` — use IntersectionObserver / Framer Motion hooks.
 - No `z-50` / `z-10` spam — z-index only for systemic layers.
 - Check `package.json` / Swift Package deps before importing any 3rd-party library.
-
----
-
-# Commands — what activates this skill
-
-Four commands live in `commands/`:
-
-| Command                                | What it does                                          | When this skill activates                          |
-|----------------------------------------|-------------------------------------------------------|----------------------------------------------------|
-| `/design-builder:setup` (alias `start`)| Establish the design foundation (interview → preview → emit to `design/`) | Layer 1 resolution, all six Layer 2 filters, HARD Distinctiveness Gate |
-| `/design-builder:create [what]`        | Generate a page using inspiration_pages               | Layer 1 (`get_design_reference(type='page')`), all six filters, SOFT Distinctiveness Gate |
-| `/design-builder:improve [target]`     | Light audit + apply concrete fixes                    | Layer 1 (read project tokens + knowledge base), Anti-Patterns + Output Rules emphasised |
-| `/design-builder:review [target]`      | Strict critique; delegates to `design-auditor`        | Skill is the audit knowledge base; agent runs the dimensions |
-
-Per-command filter emphasis, output folder, and fallback behaviour: [`references/commands.md`](references/commands.md).
-
-**Mandatory `Next:` block.** Every command must end its output with a 1-2 sentence `Next:` block recommending the next concrete action. This is enforced in each `commands/*.md`.
-
-## Output convention
-
-Project output goes to `<project>/design/`. Layout:
-
-```
-design/
-  system.md            # /setup
-  tokens.css           # /setup
-  interview.md         # /setup
-  preview.html         # /setup or /create (optional)
-  references/          # /setup (urls.md + downloaded/)
-  screenshots/         # /review input (user drops here)
-  reviews/             # /review output (review-YYYY-MM-DD-HHMM.md)
-```
-
-Commands MUST NOT write to other locations for non-source output.
 
 ---
 

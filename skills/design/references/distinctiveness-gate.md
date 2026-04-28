@@ -87,7 +87,26 @@ If the three variants share the same layout posture and the same type-pairing po
 
 - **Pass:** "Remove the asymmetric hero (H1 + off-grid demo card) and it becomes a generic centered-hero SaaS. The asymmetry IS the brand here."
 - **Pass:** "Remove the 60% forest block and the terracotta CTA loses its singular-saturated-element status — design becomes a normal cream landing with terra accents."
+- **Pass:** "Remove the `three`-shaded aurora background (`animation_aurora_background`) and the page reads as a generic dark-landing — the parallax shader is the load-bearing element. Anchored on the catalog, not improvised CSS."
+- **Pass:** "Remove the magnetic hover on the hero CTA (`animation_magnetic_button` from the catalog, framer-motion) and the page loses its 'this product respects detail' signal — small element, large character."
 - **Fail:** "Remove the heading and there's no heading" — every design needs a heading; that's not load-bearing distinctiveness.
+- **Fail:** "Hero has a fade-in-on-mount animation" — fade-ins are a default, not a load-bearing element. Catalog-vendored animations only count when the absence of the animation visibly collapses the design.
+- **Fail:** "Each card has a hover scale" — micro-interactions are decoration, not page-defining. Hover-scale spread across N cards is the inverse of load-bearing.
+
+If the load-bearing element is an animation, it must be a **catalog-vendored** component (from `mcp__designlib__list_animations` via Phase 4c) or a hand-built moment with a comparable level of intent. Improvised inline keyframes spread thin across the page do not pass.
+
+### Q8 · Layout posture (only when VARIANCE ≥ 7)
+
+*"Describe the section sequence in one sentence. Does it match the default linear posture (hero → stats → 2× feature-split → CTA → footer), or does it break it with at least one off-grid / scroll-narrative / section-order break?"*
+
+- **Pass:** "Sequence is hero → cinematic stats (sticky-pinned scroll-scrub) → off-grid 'method' band with sections positioned at angles → cream interlude → asymmetric CTA mid-page → footer. Two structural breaks: pin-scrub on stats, off-grid on method."
+- **Pass:** "Default chain is broken by placing CTA between feature-splits rather than at the end, and by replacing the third feature with a quote-band that scrolls horizontally."
+- **Fail:** "Hero, stats, two feature splits, CTA, footer." (That IS the default. Failing means: re-plan layout, pick a different anchor, or pull a section sequence from the per-section anchors found in `/create` Phase 4b.)
+- **Fail:** "Same as default but with constellation decorations sprinkled across sections" — decorating defaults is not breaking them.
+
+This question only fires when `VARIANCE >= 7`. At lower VARIANCE, default linear posture is acceptable and Q8 is skipped.
+
+Why this exists: the documented v2.0 failure is that VARIANCE evaluated palette / motion / density but not section sequence, so high-variance briefs shipped low-variance layouts. Q8 closes that gap.
 
 ---
 
@@ -106,9 +125,9 @@ The user never sees the failed candidates. The 3-variation pick is supposed to b
 ### Hard-with-1-retry (`/create`)
 
 1. Generate the page from the picked `inspiration_pages` reference.
-2. Answer Q1, Q2, Q4, Q5, Q7 silently. (Q3 and Q6 are not load-bearing here — Q3 is captured by the user's brief context, Q6 only applies to multi-variant generation.)
-3. **First failure:** discard the candidate and regenerate ONCE. On regenerate, change at least one input — different reference from the deep-fetched top-3, drop `style_family`, swap `mood`, or layer in an explicit named precedent or anti-reference from the brief.
-4. **Second failure:** emit with a `Risks taken & gaps` block (same shape as soft mode below). Tell the user which question failed and recommend a concrete next move (`/design-builder:improve` with bolder filters, or `/create` again with different filters).
+2. Answer Q1, Q2, Q4, Q5, Q7, Q8 silently. (Q3 and Q6 are not load-bearing here — Q3 is captured by the user's brief context, Q6 only applies to multi-variant generation.)
+3. **First failure:** discard the candidate and regenerate ONCE. On regenerate, change at least one input — different reference from the deep-fetched top-3, drop `style_family`, swap `mood`, layer in an explicit named precedent / anti-reference from the brief, OR (if Q8 failed) re-plan section sequence with at least one structural break.
+4. **Second failure:** emit with a `Risks taken & gaps` block (same shape as soft mode below). Tell the user which question failed and recommend a concrete next move (`/design-builder:improve <target> --restructure`, or `/create` again with different filters).
 
 The point: `/create` runs once per request and writes real source files. SOFT-only allowed boring output to ship; HARD-with-no-retry would be too expensive (re-fetching MCP, re-walking sections). One retry is the right tax.
 
