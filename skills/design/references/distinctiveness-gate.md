@@ -18,7 +18,8 @@ The Anti-Pattern filter catches *technical* AI-slop (3-column card rows, gradien
 | Step | Mode | What "fail" means |
 |---|---|---|
 | `system` (3-variation generation) | **HARD** — regenerate without showing the user | The variant that fails is silently replaced with a fresh one. Three candidates are *cheap*. The user only ever sees variants that passed. |
-| `craft` (full page / surface) | **SOFT** — annotate, ask user to keep / refine / discard | Page is shown WITH a `Risks taken & gaps` block listing failed questions. User decides whether to invoke `/design bolder`, `/design overdrive`, or accept. |
+| `/create` (page from `inspiration_pages`) | **HARD with 1 retry**, then SOFT | First failure: regenerate ONCE with different inputs (different reference from the top-3, dropped `style_family`, swapped `mood`, or an explicit risk pulled from the brief). Second failure: emit with a `Risks taken & gaps` block. Rationale: `/create` ships boring output otherwise — a single regenerate is cheap; re-fetching from MCP is not. |
+| `craft` — refining user code (`/improve`) | **SOFT** — annotate, ask user to keep / refine / discard | Output is shown WITH a `Risks taken & gaps` block listing failed questions. User decides whether to invoke a bolder pass or accept. Regenerating the user's whole file unprompted is hostile. |
 | Intensity modifiers (`bolder` / `quieter` / `distill` / `overdrive` / `delight`) | **SOFT** | Same as `craft`. |
 | `polish` | **SKIP** | Polish is precision, not character. Don't regenerate for distinctiveness. |
 | `audit` / `critique` / `review` | **SKIP** | These already include slop scoring; running this on top would double-count. |
@@ -101,6 +102,15 @@ If the three variants share the same layout posture and the same type-pairing po
 5. Show the preview HTML. Tell the user: *"Three variants generated. The hooks below are the load-bearing detail of each — pick the one that aligns with the product."*
 
 The user never sees the failed candidates. The 3-variation pick is supposed to be a real choice between three real directions, not three variations of the same default.
+
+### Hard-with-1-retry (`/create`)
+
+1. Generate the page from the picked `inspiration_pages` reference.
+2. Answer Q1, Q2, Q4, Q5, Q7 silently. (Q3 and Q6 are not load-bearing here — Q3 is captured by the user's brief context, Q6 only applies to multi-variant generation.)
+3. **First failure:** discard the candidate and regenerate ONCE. On regenerate, change at least one input — different reference from the deep-fetched top-3, drop `style_family`, swap `mood`, or layer in an explicit named precedent or anti-reference from the brief.
+4. **Second failure:** emit with a `Risks taken & gaps` block (same shape as soft mode below). Tell the user which question failed and recommend a concrete next move (`/design-builder:improve` with bolder filters, or `/create` again with different filters).
+
+The point: `/create` runs once per request and writes real source files. SOFT-only allowed boring output to ship; HARD-with-no-retry would be too expensive (re-fetching MCP, re-walking sections). One retry is the right tax.
 
 ### Soft mode (`craft` / intensity modifiers)
 

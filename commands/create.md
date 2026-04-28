@@ -64,15 +64,18 @@ For each result, present a card to the user:
 ```
 ▸ <title>  (id: <id>, source: <designlib_mcp | landing_pattern_fallback>)
   Description: <description>  [list response — may be truncated mid-sentence]
+  Use when:    <use_when>     [list response — truncated to ~120 chars; the situational call vs. siblings]
   Why it works: <why_it_works if available; otherwise "deep-fetch will load this">
   Screenshot: <screenshot_url if present, else "no screenshot available">
 ```
+
+The `Use when` line is the deciding signal when 2-3 candidates share the same `(page_type, mood, style_family)` triad — it tells the user (and you on regenerate) which reference is the right call for THIS brief. Don't omit it.
 
 Ask the user to pick one or say "more" / "different filters" / "skip references — generate from system only".
 
 ## Phase 4 — Deep-fetch picked reference
 
-Once user picks: `mcp__designlib__get_inspiration_page(page_id=picked.id)`. (Param is `page_id`, not `id`.) Capture the full payload — palette, typography, sections array, primary_cta, generation_prompt (when present), generation_constraints (when present, treat hard_rules as MUSTs), interaction_cues, effects, inspiration_metadata. The list response did NOT include these fields.
+Once user picks: `mcp__designlib__get_inspiration_page(page_id=picked.id)`. (Param is `page_id`, not `id`.) Capture the full payload — palette, typography, sections array, primary_cta, `generation_prompt` (now populated for all 11 page_types — use as the base instruction), `generation_constraints` (now populated for all 11 page_types — treat `hard_rules` as MUSTs), `use_when` (full text, vs. the truncated version in the list response), interaction_cues, effects, inspiration_metadata. The list response did NOT include the long-form versions of these fields.
 
 Re-read `inspiration_metadata.standout_qualities` (use to author the user-facing narrative for the generated page) and `inspiration_metadata.not_recommended_for` (if anything in the project's brief contradicts these, flag it before generating).
 
@@ -81,9 +84,10 @@ Re-read `inspiration_metadata.standout_qualities` (use to author the user-facing
 Generate code for the page. Follow this order:
 
 1. **Detect stack.** Read `package.json` (web), `Package.swift` / `*.xcodeproj` (iOS). Pick output format: React+Tailwind / Vue / SwiftUI / static HTML / etc. If ambiguous, ask.
-2. **Walk sections in order** (`sections[]` from the picked page). For each section: pick the appropriate component pattern, apply the system's tokens (no raw hex, no hardcoded font names — reference `design/tokens.css` variables or SwiftUI theme).
-3. **Apply `generation_constraints.hard_rules`** if present. Soft guidance can be overridden by user request from earlier turns; ask if unclear.
-4. **Run all six Layer 2 filters** on the candidate output. Distinctiveness Gate is SOFT here (not HARD): if it fails, append a `Risks taken & gaps` block to the output rather than regenerating.
+2. **Anchor on the prose triad** — `generation_prompt`, `use_when`, `why_it_works` from the deep-fetched payload. `generation_prompt` is the base instruction (structural posture + load-bearing element + risk taken). `use_when` tells you the situational call, so you don't drift the reference into a context it wasn't meant for. `why_it_works` is the UX rationale to preserve. These three together are what makes the output non-generic; treat them as load-bearing context for sections 3-4 below, not as flavor text.
+3. **Walk sections in order** (`sections[]` from the picked page). For each section: pick the appropriate component pattern, apply the system's tokens (no raw hex, no hardcoded font names — reference `design/tokens.css` variables or SwiftUI theme).
+4. **Apply `generation_constraints.hard_rules`** if present. Soft guidance can be overridden by user request from earlier turns; ask if unclear.
+5. **Run all six Layer 2 filters** on the candidate output. **Distinctiveness Gate runs HARD on first attempt** — if any of Q1/Q2/Q4/Q5/Q7 fails (see `skills/design/references/distinctiveness-gate.md`), regenerate ONCE before showing the user. On regenerate, change at least one input: pick a different reference from the top-3 deep-fetched results, OR drop `style_family` and re-fetch with a different `mood`, OR layer in an explicit risk from the brief (anti-reference, audience hook, named precedent). Only on the second failure fall back to SOFT — emit with a `Risks taken & gaps` block and tell the user which question failed and why a riskier choice would help (`/design-builder:improve` with bolder filters, or rerun `/create`).
 
 ## Phase 6 — Emit code
 
@@ -112,4 +116,5 @@ End with a `Next:` block, contextual:
 - **Fabricating section content.** When the source page has rich section structures, mirror them; don't simplify to "hero + features + CTA" by reflex.
 - **Treating MCP filters as arrays.** They're singular. Multi-mood filtering is multi-call + dedupe.
 - **Calling `get_inspiration_page(id=...)`.** The param is `page_id`.
-- **Trusting the list response's `description` as full.** It's truncated — deep-fetch for the full text.
+- **Trusting the list response's `description` as full.** It's truncated — deep-fetch for the full text. Same goes for `use_when` (~120 char cap in list).
+- **Ignoring `generation_prompt` / `use_when` because the page_type isn't `marketing_landing`.** Both are now populated for all 11 page_types — the old null-on-9-types assumption is dead. If they're missing, that's a data issue, not the default.
