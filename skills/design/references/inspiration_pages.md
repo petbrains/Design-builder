@@ -71,7 +71,7 @@ When the future `inspiration_parts` entity ships, it will carry just the part ra
 
 ## Field-by-field reference
 
-> **List vs deep-fetch:** `list_inspiration_pages` returns a SUBSET of fields (id, page_type, appearance, style_family, industry, mood[], keywords[], screenshot_path, description — and description is truncated). To get `palette`, `typography`, `sections`, `primary_cta`, `why_it_works`, `generation_prompt`, `generation_constraints`, `inspiration_metadata`, `effects`, `interaction_cues`, you MUST call `get_inspiration_page(page_id=...)`.
+> **List vs deep-fetch:** `list_inspiration_pages` returns a SUBSET of fields (id, page_type, appearance, style_family, industry, mood[], keywords[], screenshot_path, description — and description is truncated; `use_when` is also returned in the list response, truncated to ~120 chars). To get `palette`, `typography`, `sections`, `primary_cta`, `why_it_works`, full `use_when`, `generation_prompt`, `generation_constraints`, `inspiration_metadata`, `effects`, `interaction_cues`, you MUST call `get_inspiration_page(page_id=...)`.
 
 ### Top-level identity (in list response)
 - `id` — `page_<slug>`. Stable. Use for `get_inspiration_page(page_id=<id>)` deep-fetch. **The param is named `page_id`, not `id`.**
@@ -103,7 +103,7 @@ When the future `inspiration_parts` entity ships, it will carry just the part ra
 - `sections` — **ordered array of section objects**. Each section has its own type + content schema. When generating, walk sections in order; pull copy + structural intent from each.
 - `effects` — animation / parallax / transition cues.
 - `interaction_cues` — hover behaviour, scroll triggers.
-- `generation_constraints` — `{ hard_rules, soft_guidance } | null`. Non-null only for `page_type ∈ (marketing_landing, signup)`. Treat `hard_rules` as MUSTs; `soft_guidance` as defaults that can be overridden by user request.
+- `generation_constraints` — `{ hard_rules, soft_guidance } | null`. Backfilled across all 11 page_types as of 2026-04-28 (was previously `marketing_landing` / `signup` only). Treat `hard_rules` as MUSTs; `soft_guidance` as defaults that can be overridden by user request.
 
 ### Inspiration metadata (deep-fetch only)
 - `inspiration_metadata` — mirror of TEXT[] tags + `standout_qualities` + `not_recommended_for`. Use `standout_qualities` to power the "why_it_works" narrative shown to the user; respect `not_recommended_for` to filter out before showing.
@@ -112,7 +112,8 @@ When the future `inspiration_parts` entity ships, it will carry just the part ra
 ### Prose (deep-fetch only)
 - `description` — 2-4 sentences, neutral. **The list response truncates this** — re-read from deep-fetch when you need the full text.
 - `why_it_works` — 2-4 sentences, UX insight. Use this directly in the variant card shown to the user (after light editing).
-- `generation_prompt` — non-null IFF `page_type ∈ (marketing_landing, signup)`. A ready-to-use prompt seed for generation. When present, use it as the base instruction; layer the user's design system on top.
+- `generation_prompt` — a ready-to-use prompt seed for generation. Backfilled across all 11 page_types as of 2026-04-28 (was previously `marketing_landing` / `signup` only). Shape: 2-4 sentences naming the page's structural posture, the load-bearing element, the risk taken vs. a generic version, and what NOT to copy. Use it as the base instruction; layer the user's design system on top.
+- `use_when` — 1-3 sentences of prose describing the situational call: when this specific reference is the right pick over its siblings in the same `(page_type, mood, style_family)` triad. Available in both list response (truncated to ~120 chars) and deep-fetch (full text). Pair this with `why_it_works` when answering the Distinctiveness Gate's Q4 ("named reference, not adjective") and Q5 ("user's brief, applied") — `use_when` gives prose-shaped material for prose-shaped questions.
 - `notes` — additional hints.
 
 ## Known issues
