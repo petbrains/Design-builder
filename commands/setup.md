@@ -1,12 +1,139 @@
 ---
-description: Establish the project's design foundation through interview + reference discovery + visual preview. Writes to design/.
-argument-hint: ""
+description: Scaffold design/ folder, detect/confirm project stack, run interview, render foundation. Writes design-system.md, style-guide.md, content-library.md, tokens.css, preview.html.
+argument-hint: "[--migrate is NOT a v2.1 flag — fresh setup only]"
 allowed-tools: Read, Glob, Grep, Bash, Write, Edit, mcp__designlib__list_inspiration_pages, mcp__designlib__get_inspiration_page, mcp__designlib__list_inspiration_page_facets, mcp__designlib__list_palettes, mcp__designlib__list_styles, mcp__designlib__list_font_pairs, mcp__designlib__list_domains, mcp__designlib__list_landing_patterns
 ---
 
 # /design-builder:setup — establish the design foundation
 
 You are the entry point for a brand-new design project. Activate the `design` skill (`skills/design/SKILL.md`). You produce the artifacts in `design/` that every later command (`/create`, `/improve`, `/review`) relies on. Until you finish, the user has no design system.
+
+## Phase 0 — Scaffold + stack detect (NEW in v2.1)
+
+This phase runs first. No interview question is asked until 0.4 completes.
+
+### 0.1 — Scaffold the `design/` folder
+
+Create the following structure (use `Bash mkdir -p` plus `Write` for the files):
+
+```
+design/
+  pages/
+  screens/
+  references/
+    README.md
+  reviews/
+  .cache/
+    .gitignore
+```
+
+Contents:
+
+- `design/.cache/.gitignore`: a single line `*` — excludes the entire `.cache/` directory from git.
+- `design/references/README.md`:
+  ```
+  # Design references
+
+  Drop reference materials here:
+  - URLs and Figma links → add to `urls.md` (one per line, with optional context).
+  - Screenshots and reference images → drop into this folder directly. Files prefixed `ref-` are auto-downloads from /setup; everything else is your manual addition.
+
+  /setup, /design_page, and /design_screen all read this folder when relevant.
+  ```
+
+After scaffolding, surface this single message to the user:
+> "Created `design/`. If you have references — drop URLs/screenshots/Figma links in `design/references/` or paste them here. Ready to start? (`go` / I have references)"
+
+If the user pastes URLs in chat: append them to `design/references/urls.md` (create the file). If they say `go`: continue to 0.2 immediately.
+
+### 0.2 — Detect project stack
+
+Read these files in parallel (with `Read`, `Glob`, or `Bash ls` as appropriate):
+
+- `package.json` (root; if missing → not a JS/TS project)
+- `Package.swift`, `*.xcodeproj` (iOS project signals)
+- `pubspec.yaml` (Flutter)
+- `Cargo.toml`, `go.mod` (signal: probably not a frontend project being designed)
+- root `index.html` (when no `package.json` exists → static HTML)
+
+Classification rules:
+
+| Signals | Stack |
+|---|---|
+| `package.json` deps include `next` | Next.js (then check App Router vs Pages Router by directory presence) |
+| `package.json` deps include `react` AND `vite` | Vite + React |
+| `package.json` deps include `react` AND no bundler clue | CRA / generic React |
+| `package.json` deps include `vue` | Vue |
+| `package.json` deps include `svelte` | Svelte |
+| `package.json` deps include `@angular/core` | Angular |
+| `Package.swift` OR `*.xcodeproj` (with `import SwiftUI` in Sources) | SwiftUI |
+| `Package.swift` OR `*.xcodeproj` (UIKit only) | UIKit |
+| `pubspec.yaml` | Flutter |
+| Only `index.html` | Static HTML |
+| None | (empty — ask) |
+
+Also check for styling and component lib:
+- `tailwindcss` in deps → Tailwind (check version: v3 vs v4 from `package.json`)
+- `styled-components`, `@emotion/*`, `sass` → record
+- `components/ui/` directory existence + `components.json` (shadcn config) → shadcn/ui
+
+### 0.3 — Confirm or ask
+
+Three branches based on 0.2:
+
+- **Detected unambiguously:** confirm in one message:
+  > "I see **<framework> + <styling> + <component lib if any>**. Right? (`y` / let me correct)"
+- **Ambiguous (multiple candidates):** present multiple choice:
+  > "Multiple stacks possible. Which is this? (1) <option A>  (2) <option B>  ..."
+- **Empty (no stack):** ask:
+  > "No stack detected. What are we building? `Next.js` / `Vite + React` / `SwiftUI` / `Flutter` / `static HTML` / `other` (specify)"
+
+Wait for response. Capture chosen stack into a working variable for 0.4.
+
+### 0.4 — Offer scaffold (only if no project initialized)
+
+If 0.3 ended with the user choosing a stack but the project files indicate **no initialized project** (e.g. user picked Next.js but `package.json` doesn't exist, or picked SwiftUI but `Package.swift` doesn't exist):
+
+> "To generate code via `/build` later, the project needs to be initialized. Run this in another terminal:
+> ```
+> <stack-appropriate scaffold command — see table below>
+> ```
+> Tell me `done` when ready, or `skip` to keep designing without a project (you'll scaffold later)."
+
+Stack → command:
+
+| Stack | Suggested scaffold command |
+|---|---|
+| Next.js | `npx create-next-app@latest . --typescript --tailwind --app` |
+| Vite + React | `npm create vite@latest . -- --template react-ts` |
+| Vue | `npm create vue@latest .` |
+| SwiftUI | (Xcode UI: File → New → Project → App; or `xcodegen` if user has it) |
+| Flutter | `flutter create .` |
+| Static HTML | (no scaffold needed — explain that `/build` will write `<name>.html` + `<name>.css` directly) |
+
+**Never run the scaffold command yourself.** Suggest only — destructive in user's repo.
+
+### 0.5 — Persist the stack
+
+Write `design/.cache/stack.json`:
+
+```json
+{
+  "framework": "next.js",
+  "framework_version": "15",
+  "router": "app",
+  "language": "typescript",
+  "styling": "tailwindcss",
+  "styling_version": "v4",
+  "component_lib": "shadcn/ui",
+  "target": "web",
+  "responsive": "mobile-first",
+  "project_initialized": true,
+  "detected_at": "<YYYY-MM-DD>"
+}
+```
+
+Set `project_initialized: false` if the user said `skip` in 0.4. The `## Stack` section in `design-system.md` (Phase 5a) is rendered from this file.
 
 ## Phase 1 — Discovery (mandatory; one question at a time)
 
