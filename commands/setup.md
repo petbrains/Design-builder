@@ -367,11 +367,11 @@ After all writes, list the files with byte sizes (one per line):
 
 ## Phase 6 — Next-step block
 
-Output a final block (1-2 sentences) recommending what to do next. Examples (use the one matching state):
+Output a final block (1-2 sentences) recommending what to do next. Pick the variant matching state:
 
-- "✓ Design system ready: `design/system.md`. **Next:** `/design-builder:create landing` — let's build the first page on this system."
-- (User declined preview) "✓ System captured at `design/system.md`, but no visual preview generated. **Next:** `/design-builder:create landing`, or come back and ask 'assemble HTML preview' to see it in markup before generating real code."
-- (iOS / cross — fell back to landing_patterns) "✓ Design system ready (note: inspiration_pages is web-only, so iOS direction was anchored on landing_patterns + HIG). **Next:** `/design-builder:create <screen-name>` to generate the first SwiftUI view."
+- Default success: "✓ Design foundation ready: `design/design-system.md`, `design/style-guide.md`, `design/content-library.md`. **Next:** `/design-builder:design_page <name>` for a web page, or `/design-builder:design_screen <name>` for an app screen. You can also draft several specs first and then `/design-builder:build all`."
+- iOS / cross — fell back to landing_patterns: "✓ Design foundation ready (note: inspiration_pages is web-only, so iOS direction was anchored on landing_patterns + HIG). **Next:** `/design-builder:design_screen <name>` to draft the first SwiftUI view spec."
+- Project not initialized (Phase 0.4 skip): "✓ Design foundation ready, BUT project not initialized — `/build` will fail until you scaffold it. **Next:** scaffold first (see `design-system.md ## Stack`), then `/design-builder:design_page <name>`."
 
 ## Failure modes to avoid
 
@@ -381,3 +381,4 @@ Output a final block (1-2 sentences) recommending what to do next. Examples (use
 - **Generic candidates.** Distinctiveness Gate is HARD here. If you find yourself producing candidates that "any LLM would generate" — regenerate with tighter filters (more specific mood, narrower industry, named visual_signatures).
 - **Treating MCP filters as arrays.** They're singular. Multi-mood filtering is multi-call + dedupe.
 - **Calling `get_inspiration_page` with `id=...`.** The param is `page_id=...`.
+- **Skipping Phase 0.** Phase 0 establishes the stack which `design-system.md ## Stack` and `/build` depend on. Skipping it forces every later phase to re-detect or guess.
