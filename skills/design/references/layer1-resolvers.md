@@ -188,7 +188,7 @@ Inherit only the common filters unless documented otherwise in the corresponding
 
 ## How commands call this
 
-Commands in `commands/` invoke the resolver by stating intent in the command body, not by calling tools directly. Example phrasing inside `commands/create.md`:
+Commands in `commands/` invoke the resolver by stating intent in the command body, not by calling tools directly. Example phrasing inside `commands/design_page.md`:
 
 > Resolve a page reference via `get_design_reference(type='page', filters={page_type, mood: <one>, style_family: <one>}, limit=3)`. Show the user 2-3 normalised `DesignReference` cards (`title` + `description` + `why_it_works` + screenshot if present). On user pick, deep-fetch full detail via `mcp__designlib__get_inspiration_page(page_id=picked.id)`.
 

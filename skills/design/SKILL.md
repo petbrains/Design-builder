@@ -22,7 +22,7 @@ When a command asks for "2-3 candidates" (`/setup`'s direction proposal, `/desig
 
 For `/setup` direction candidates: each candidate gets the verbose block format defined in `commands/setup.md` Phase 3. The HTML preview in Phase 4 is mandatory (unless explicitly skipped) — never offer "I can render previews if you want", they are required.
 
-For `/design_page` and `/design_screen` page references: each reference gets the card format defined in `commands/create.md` Phase 3.
+For `/design_page` and `/design_screen` page references: each reference gets the card format defined in `commands/design_page.md` Phase 3.
 
 If you find yourself drafting a generic A/B/C narrative — stop. Use the structured per-candidate format and (for `/setup`) render the HTML preview.
 

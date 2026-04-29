@@ -54,7 +54,7 @@ Print to the user:
 End with a `Next:` block:
 
 - Found P0/P1: "✓ Report at `<path>`: <X> P0, <Y> P1, <Z> P2. **Next:** `/design-builder:improve <target>` — auto-fixes <fixable_count> of <X+Y> (P0+P1 with `fixable=true`); the rest need manual rework."
-- All clean: "✓ <P0=0, P1=0>, <P2/P3 only>. **Next:** design is ready for human review — open Figma/code and walk through it; or `/design-builder:create` the next page."
+- All clean: "✓ <P0=0, P1=0>, <P2/P3 only>. **Next:** design is ready for human review — open Figma/code and walk through it; or `/design-builder:design_page <name>` to spec the next page."
 - Code-only mode used: "✓ Code-only review at `<path>`. **Next:** drop screenshots in `design/screenshots/` and rerun for the full picture, or `/design-builder:improve` based on what we found."
 
 ## Future hooks (interfaces present, not implemented in v2.0)
