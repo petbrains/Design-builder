@@ -6,23 +6,23 @@ user-invocable: false
 
 # Design Knowledge Base — for design-builder
 
-You are the knowledge base behind the `design-builder` plugin. Commands in `commands/` (`/setup`, `/create`, `/improve`, `/review`) activate you to resolve facts, apply filters, and enforce rules. **You do not execute commands directly.** Wait until a command activates you.
+You are the knowledge base behind the `design-builder` plugin. Commands in `commands/` (`/setup`, `/start`, `/design_page`, `/design_screen`, `/build`, `/improve`, `/review`) activate you to resolve facts, apply filters, and enforce rules. **You do not execute commands directly.** Wait until a command activates you.
 
 The two failure modes this skill exists to prevent — read first.
 
 ## Failure mode 1 — skipping discovery because "context looks complete"
 
-You are a fluent text generator. A detailed brief in chat is **not** a license to jump from `/setup` straight to `/create`. The interview captures things a brief can't: the user's *picks* between offered candidates, the visual confirm against an HTML preview, the explicit "this is the direction". Skipping it produces output the user had no say in.
+You are a fluent text generator. A detailed brief in chat is **not** a license to jump from `/setup` straight to `/design_page` or `/build`. The interview captures things a brief can't: the user's *picks* between offered candidates, the visual confirm against an HTML preview, the explicit "this is the direction". Skipping it produces output the user had no say in.
 
 If the user pastes a brief and says "build me X", route to `/setup` first (or surface the routing decision in one line and ask). Don't silently jump.
 
 ## Failure mode 2 — describing variants in prose instead of rendering
 
-When a command asks for "2-3 candidates" (`/setup`'s direction proposal, `/create`'s reference picker), your default is to write paragraphs of prose: *"A. Editorial — light, warm. B. Forest-block — dark, confident…"* **Don't.**
+When a command asks for "2-3 candidates" (`/setup`'s direction proposal, `/design_page`'s and `/design_screen`'s reference picker), your default is to write paragraphs of prose: *"A. Editorial — light, warm. B. Forest-block — dark, confident…"* **Don't.**
 
 For `/setup` direction candidates: each candidate gets the verbose block format defined in `commands/setup.md` Phase 3. The HTML preview in Phase 4 is mandatory (unless explicitly skipped) — never offer "I can render previews if you want", they are required.
 
-For `/create` page references: each reference gets the card format defined in `commands/create.md` Phase 3.
+For `/design_page` and `/design_screen` page references: each reference gets the card format defined in `commands/create.md` Phase 3.
 
 If you find yourself drafting a generic A/B/C narrative — stop. Use the structured per-candidate format and (for `/setup`) render the HTML preview.
 
@@ -32,7 +32,7 @@ If you find yourself drafting a generic A/B/C narrative — stop. Use the struct
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  COMMANDS    (commands/setup,start,create,improve,review.md)      │
+│  COMMANDS    (commands/setup,start,design_page,design_screen,build,improve,review.md)  │
 │  Entry points the user invokes. Thin scenarios.                   │
 └────────────────────────────┬─────────────────────────────────────┘
                              │ activate this skill, which:
@@ -64,7 +64,7 @@ One sub-agent lives in `agents/`:
 |---------------------|------------------|-------------------------------------------------------------------------|
 | `/review`           | `design-auditor` | Loads many references (a11y, perf, HIG, motion, AI-slop criteria), greps the project, returns a structured P0-P3 report. Heavy multi-file reads + structured JSON output — both qualities of a useful agent. |
 
-`/setup`, `/create`, `/improve` run **inline** through this skill — no delegation. The earlier v1.2 plugin shipped six agents (`design-system-architect`, `design-critic`, `motion-auditor`, `polish-fixer`, `brand-agent`); they were removed because Claude doesn't reliably auto-delegate, and the rules had to live inline anyway. Only the auditor survives.
+`/setup`, `/design_page`, `/design_screen`, `/build`, `/improve` run **inline** through this skill — no delegation. The earlier v1.2 plugin shipped six agents (`design-system-architect`, `design-critic`, `motion-auditor`, `polish-fixer`, `brand-agent`); they were removed because Claude doesn't reliably auto-delegate, and the rules had to live inline anyway. Only the auditor survives.
 
 ---
 
@@ -75,6 +75,7 @@ All Layer 1 access goes through `get_design_reference(type, filters)`. See [`ref
 ## Source order (strict)
 
 1. **Project tokens** — `design/tokens.css`, `design/system.md`, `tailwind.config.*`, `*.xcassets`. Read when a command wants "use what the user has".
+1.5. **Spec files (only for /build)** — `design/pages/<name>.md`, `design/screens/<name>.md`. /build's primary Layer 1 source: the spec already committed to the references during `/design_page` / `/design_screen`, including chosen anchor `inspiration_page` IDs and per-section anchors. /build does NOT re-resolve references; it honors what the spec captured. (For /design_page, /design_screen, /setup, /improve, /review — sources 1, 2, 3, 4, 5 apply as before, no spec source.)
 2. **designlib MCP** — primary source for most types. New in v2.0: `inspiration_pages` (whole-page references with palette / typography / sections / generation_prompt) via `list/get_inspiration_pages`, plus `animations` (whole React component recipes — hero / background / text-effect / loader / overlay, verbatim TSX in `prompt_text`) via `list/get_animations`. Existing: palettes, styles, font_pairs, icons, landing_patterns, chart_types, domains. **Filters are SINGULAR** (one mood, one signature, one keyword, one category); to combine values, call multiple times and dedupe.
 3. **Local CSV** — [`scripts/search.py`](scripts/search.py) over `data/`. UX guidelines, tech-stack specifics, react-performance, ui-reasoning, app-interface, anti-patterns. (Charts, landing_patterns, icons → designlib MCP, no longer local.)
 4. **iOS HIG references** — [`references/ios/`](references/ios/README.md). Apple-specific rules. Use when filters specify `platform='ios'`.
@@ -125,7 +126,7 @@ Where to find: `design/interview.md` (written by `/setup`), or by reading the pr
 |---|---|
 | [`references/architecture.md`](references/architecture.md) | Three-layer model + extension points |
 | [`references/design-dials.md`](references/design-dials.md) | Design Dials detail (VARIANCE / MOTION / DENSITY) |
-| [`references/distinctiveness-gate.md`](references/distinctiveness-gate.md) | Pre-emit gate; HARD on `/setup`, SOFT on `/create`, evaluator inside `/review` |
+| [`references/distinctiveness-gate.md`](references/distinctiveness-gate.md) | Pre-emit gate; HARD on `/setup`, SOFT on `/design_page` and `/design_screen`, evaluator inside `/review` |
 | [`references/ux-writing.md`](references/ux-writing.md) | General UX writing principles |
 
 ### Web
@@ -193,7 +194,7 @@ The Anti-Pattern filter catches *technical* AI-slop (3-column rows, gradient tex
 The Distinctiveness Gate asks the model — privately, before showing the user — 8 questions: one-line takeaway, 30-second-without-context test, risk inventory, named reference, brief-shaped element, cross-variant differentiation, load-bearing element, and layout posture (only when VARIANCE ≥ 7). Adjective answers fail; concrete answers pass.
 
 - **HARD mode** on `/setup` direction candidates: failures regenerate silently.
-- **HARD-with-1-retry** on `/create` page output: first failure regenerates once with a changed input; second failure emits SOFT with a `Risks taken & gaps` block.
+- **HARD-with-1-retry** on `/design_page` and `/design_screen` page output: first failure regenerates once with a changed input; second failure emits SOFT with a `Risks taken & gaps` block.
 - **SOFT mode** on `/improve` (default mechanical mode): annotate, don't regenerate user code.
 - **Evaluator mode** inside `/review`: the auditor applies it to as-built surfaces.
 
@@ -201,7 +202,7 @@ Full spec: [`references/distinctiveness-gate.md`](references/distinctiveness-gat
 
 ## Design Direction
 
-Commit to a BOLD direction. Purpose / tone / differentiation. Bold maximalism and refined minimalism both work — the key is intentionality. For `/create`, the direction is read from `design/system.md` (set by `/setup`); commands must respect it, not override.
+Commit to a BOLD direction. Purpose / tone / differentiation. Bold maximalism and refined minimalism both work — the key is intentionality. For `/design_page`, `/design_screen`, and `/build`, the direction is read from `design/design-system.md` (set by `/setup`); commands must respect it, not override.
 
 ## Design Dials
 
