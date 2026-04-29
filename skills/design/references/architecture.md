@@ -66,7 +66,7 @@ Detail: [`distinctiveness-gate.md`](distinctiveness-gate.md), [`design-dials.md`
 ### Layer 1 (knowledge base)
 Sources resolved via `get_design_reference(type, filters)`:
 
-1. Project tokens — `design/tokens.css`, `design/system.md`, etc.
+1. Project tokens — `design/tokens.css`, `design/design-system.md`, `design/style-guide.md`, `design/content-library.md`, etc.
 2. designlib MCP — palettes, fonts, **inspiration_pages**, landing_patterns, icons, charts, domains. **Filters are SINGULAR** — for multi-value (multiple moods etc.) call multiple times and dedupe.
 3. Local CSV — `data/` (UX guidelines, tech stacks, anti-patterns).
 4. iOS HIG — `references/ios/` (when `platform='ios'`).
@@ -82,6 +82,18 @@ Extensions are additive — they never rewrite existing layers. Markers in `SKIL
 - `<!-- FILTER-EXTENSION: add new filter here -->` — new aesthetic rule, anti-pattern, or output rule. Add to the filter section in `SKILL.md`.
 
 (Pipeline extension markers from v1.2 are gone — there are no pipelines in v2.0.)
+
+## Spec as intermediate artefact (v2.1)
+
+For the `/design_page` → `/build` flow, the three-layer rule applies twice:
+1. **`/design_page` (synthesis):** Layer 1 (inspiration_pages, palettes, animations) + Layer 2 (filters) → spec at `design/pages/<name>.md`.
+2. **`/build` (emit):** Layer 1 (the spec itself, plus tokens.css and style-guide.md) + Layer 2 (filters in spec-honoring mode) → code in source tree.
+
+The Distinctiveness Gate runs in different modes per stage:
+- In `/design_page` Phase 3.7: HARD-with-1-retry against the picked references — can it stay distinctive at the chosen anchor?
+- In `/build` Phase 3.7: HARD-with-1-retry against the spec — does the code preserve what the spec committed to?
+
+If the spec itself is generic (shipped a low-VARIANCE direction or used the page-level anchor for all sections without per-section anchors), Layer 2 in `/build` can't make it distinctive — that requires re-running `/design_page`.
 
 ## What changed in v2.0 (vs v1.2)
 

@@ -1,8 +1,8 @@
 {
   "name": "design-builder",
   "displayName": "Design Builder",
-  "version": "2.0.0",
-  "description": "Build distinctive production-grade interfaces on web + iOS through 4 user-facing commands (/setup, /create, /improve, /review). Knowledge-base skill (anti-patterns, motion, HIG, BM25 search) + designlib MCP for authoritative palettes/fonts/inspiration_pages. Evolved from superdesign 1.2.",
+  "version": "2.1.0",
+  "description": "Build distinctive production-grade interfaces on web + iOS through 6 user-facing commands (/setup, /design_page, /design_screen, /build, /improve, /review). Spec-first workflow: design specs (markdown) precede code generation. Knowledge-base skill (anti-patterns, motion, HIG, BM25 search) + designlib MCP for authoritative palettes/fonts/inspiration_pages. Evolved from superdesign 1.2.",
   "author": {
     "name": "Roman Pluzhnikov",
     "email": "pluzhnikov137@gmail.com"

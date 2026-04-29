@@ -61,7 +61,7 @@ If results are empty or too few (<2): drop `style_family` first, then `mood` (ke
 
 ## Platform note
 
-inspiration_pages are **web-only**. The MCP returns `meta.platform: null` and there is no `platform` filter parameter. For iOS or cross requests, the resolver should fall back to `landing_patterns` or iOS HIG references. Document this in `design/system.md` if `/setup` is run for iOS — make the user aware that the inspiration source pool is currently web-only.
+inspiration_pages are **web-only**. The MCP returns `meta.platform: null` and there is no `platform` filter parameter. For iOS or cross requests, the resolver should fall back to `landing_patterns` or iOS HIG references. Document this in `design/design-system.md` if `/setup` is run for iOS — make the user aware that the inspiration source pool is currently web-only.
 
 ## `good_for_stages` and "parts"
 
