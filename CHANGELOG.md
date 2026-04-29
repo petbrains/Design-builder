@@ -1,5 +1,36 @@
 # Changelog
 
+## v2.1.0 — 2026-04-29
+
+### Added
+- **`/setup` Phase 0** — scaffolds `design/` folder structure (`pages/`, `screens/`, `references/`, `.cache/`) before any interview question. Detects project stack (Next.js / Vite / SwiftUI / Flutter / static HTML, plus Tailwind / shadcn variants), confirms with the user, suggests scaffold command if no project is initialized.
+- **`/setup` Phase 5 emits three foundation files** instead of one:
+  - `design/design-system.md` (tokens + Stack section)
+  - `design/style-guide.md` (a11y values with numerical contrast computed via `compute_contrast.py`, touch targets, platform constraints, density/motion rules, full anti-pattern prose, component states required)
+  - `design/content-library.md` (voice & tone, UI states, forms, notifications)
+- **`/design_page <name>`** — new command. Produces a design spec (markdown) for a web page at `design/pages/<name>.md`. Documentation-aware (asks for PRD/brief/Figma URL up front, doesn't paraphrase). Animation choice fixed in spec; `/build` vendors the file later. Final gate offers Figma export, another spec, or `/build`.
+- **`/design_screen <name>`** — new command. Same as `/design_page` for app screens. Uses `landing_patterns` + iOS HIG (inspiration_pages is web-only). Spec adds Navigation context, Gestures, Safe areas. Animation specs are HIG springs (catalog is React-only).
+- **`/build [target]`** — new universal code generator. Reads spec(s) from `design/pages/` and/or `design/screens/`, writes code to source tree. Supports single (`build landing`), batch (`build all`), glob (`build pages/onboarding-*`), or interactive multi-select (`build` with no arg). Sequential, continue-on-fail. Stack-aware path conventions.
+- `compute_contrast.py` — stdlib WCAG 2.1 contrast calculator. CLI: stdin JSON → stdout JSON.
+- New references: `style-guide-template.md`, `content-library-template.md`, `page-spec-format.md`, `screen-spec-format.md`.
+
+### Changed
+- `/setup` no longer writes `design/interview.md` — captures live in `design/.cache/interview.json` (debug context, gitignored, not for users).
+- `/improve`, `/review`, `agents/design-auditor.md` — read the three new foundation files; a11y findings cross-reference `style-guide.md` contrast table; voice findings cross-reference `content-library.md` principles.
+- `skills/design/SKILL.md` — command map updated to 6 commands; Layer 1 source order extended (spec is primary Layer 1 source for `/build`).
+- `references/architecture.md` — three-layer rule documents the spec as intermediate artefact between `/design_page` (synthesis) and `/build` (emit).
+- `references/commands.md` — rewritten for the v2.1 command set.
+- `.claude-plugin/plugin.json` — version 2.1.0, description updated.
+- `design/references/` no longer has a `downloaded/` subfolder; reference images go directly into `design/references/` with `ref-` filename prefix for auto-downloads.
+
+### Removed
+- **`/create` command** — deleted. Hard cut from v2.0. The "design + emit code in one step" flow conflated planning and execution; v2.1 separates them with `/design_page` / `/design_screen` (planning) + `/build` (execution). For new v2.1 projects, run `/setup` then `/design_page <name>` then `/build <name>`.
+- `design/interview.md` (was a v2.0 output) — data now lives in `design/.cache/interview.json`.
+
+### Migration
+
+No `--migrate` flag, no automated migration tooling. v2.1 is a hard cut for the project author (single user at this point). For older projects pinned to v2.0, stay on commit `4d331cc` until manually re-running `/setup` on v2.1.
+
 ## 2.0.0 — 2026-04-27
 
 **Full rebrand to `design-builder`. Command-based architecture replaces pipeline/atomic model.**
