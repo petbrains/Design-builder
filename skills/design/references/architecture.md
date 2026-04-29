@@ -66,7 +66,7 @@ Detail: [`distinctiveness-gate.md`](distinctiveness-gate.md), [`design-dials.md`
 ### Layer 1 (knowledge base)
 Sources resolved via `get_design_reference(type, filters)`:
 
-1. Project tokens — `design/tokens.css`, `design/system.md`, etc.
+1. Project tokens — `design/tokens.css`, `design/design-system.md`, `design/style-guide.md`, `design/content-library.md`, etc.
 2. designlib MCP — palettes, fonts, **inspiration_pages**, landing_patterns, icons, charts, domains. **Filters are SINGULAR** — for multi-value (multiple moods etc.) call multiple times and dedupe.
 3. Local CSV — `data/` (UX guidelines, tech stacks, anti-patterns).
 4. iOS HIG — `references/ios/` (when `platform='ios'`).

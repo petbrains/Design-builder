@@ -74,7 +74,7 @@ All Layer 1 access goes through `get_design_reference(type, filters)`. See [`ref
 
 ## Source order (strict)
 
-1. **Project tokens** — `design/tokens.css`, `design/system.md`, `tailwind.config.*`, `*.xcassets`. Read when a command wants "use what the user has".
+1. **Project tokens** — `design/tokens.css`, `design/design-system.md`, `design/style-guide.md`, `design/content-library.md`, `tailwind.config.*`, `*.xcassets`. Read when a command wants "use what the user has".
 1.5. **Spec files (only for /build)** — `design/pages/<name>.md`, `design/screens/<name>.md`. /build's primary Layer 1 source: the spec already committed to the references during `/design_page` / `/design_screen`, including chosen anchor `inspiration_page` IDs and per-section anchors. /build does NOT re-resolve references; it honors what the spec captured. (For /design_page, /design_screen, /setup, /improve, /review — sources 1, 2, 3, 4, 5 apply as before, no spec source.)
 2. **designlib MCP** — primary source for most types. New in v2.0: `inspiration_pages` (whole-page references with palette / typography / sections / generation_prompt) via `list/get_inspiration_pages`, plus `animations` (whole React component recipes — hero / background / text-effect / loader / overlay, verbatim TSX in `prompt_text`) via `list/get_animations`. Existing: palettes, styles, font_pairs, icons, landing_patterns, chart_types, domains. **Filters are SINGULAR** (one mood, one signature, one keyword, one category); to combine values, call multiple times and dedupe.
 3. **Local CSV** — [`scripts/search.py`](scripts/search.py) over `data/`. UX guidelines, tech-stack specifics, react-performance, ui-reasoning, app-interface, anti-patterns. (Charts, landing_patterns, icons → designlib MCP, no longer local.)
