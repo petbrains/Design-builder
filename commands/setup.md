@@ -212,21 +212,158 @@ Wait for the user's pick. Skippable only on explicit user instruction ("pick for
 
 ## Phase 5 — Emit (only after pick)
 
-Write the chosen direction to:
+Phase 5 writes four files (web) or five (iOS — adds `tokens.json` next to `tokens.css` style equivalent), based on the picked direction. **All output is personalized** — values are derived from interview, the chosen palette/typography, and the stack from Phase 0.
 
-- `design/system.md` — full system spec: direction name, mood, palette with role assignments, typography pairs, spacing scale, motion baseline, the four Anti-Pattern bans (BAN 1-4), `not_recommended_for` notes from the source inspiration_pages.
+Before writing any file: read `design/.cache/stack.json` (Phase 0.5) into context.
 
-  **Lift the prose triad from the deep-fetched anchor pages into a `## Structural intent` section.** Quote `why_it_works` and `generation_prompt` from each primary anchor verbatim. These are the load-bearing UX rationale — they tell `/create` later WHY the reference looks the way it does (e.g. "stealth + discovery via section ordering", "tight grid + denser type carries trust"). Without this section, `/create` only sees palette + typography and reverts to default linear posture. Treat this as a hard requirement, not optional flavor text.
+### Phase 5a — `design/design-system.md`
 
-  **Add a `## Layout posture` section** if the user banned typical structure or VARIANCE ≥ 7. State the required posture in one sentence (e.g. "section sequence MUST include at least one of: off-grid asymmetric block, scroll-narrative pinned section, or section-order break — never a default hero → 3-col features → CTA chain"). `/create` Phase 5 step 5 reads this as the layout-distinctiveness gate.
+Write the file with these sections in this order. The `## Stack` section is rendered from `design/.cache/stack.json`. The other sections are unchanged from the v2.0 `system.md` (which this file replaces).
 
-- `design/tokens.css` — CSS custom properties for all palette + typography + spacing. Use `templates/web/` starters if the platform is web. For iOS, write `design/tokens.json` instead and create SwiftUI theme files per `templates/ios/Theme/`.
+```markdown
+# Design System — <Project Name>
+generated: <YYYY-MM-DD>
 
-  **Dark-theme nav contrast.** If `appearance=dark`, emit a separate token `--ink-muted-strong` (~6.5-7:1 against `--surface-default`) in addition to `--ink-muted` (~4.5-5.5:1). Annotate in `system.md`: "use `--ink-muted-strong` for nav links, eyebrows ≤13px, footer copy at small sizes; `--ink-muted` only for ≥14px secondary text." Otherwise nav links wash out — documented v2.0 issue from Lumen test where `--ink-muted #7A7E8C` against `#0A0B10` (~5.3:1) read as borderline at 12px.
+## Stack
+- Framework: <stack.framework> <stack.framework_version> (<stack.router> if applicable)
+- Language: <stack.language>
+- Styling: <stack.styling> <stack.styling_version>
+- Component lib: <stack.component_lib | "none">
+- Target: <stack.target> (responsive: <stack.responsive>)
+- Project initialized: <yes | no — needs scaffolding before /build>
 
-- `design/interview.md` — append a `## Final decision` section with timestamp, chosen candidate name, source IDs, and any user customisations.
+## Direction
+- Name: <chosen direction name>
+- Mood: <mood label>
+- Source inspiration_pages: <comma-separated IDs>
 
-Confirm files written by listing them with their byte sizes.
+## Palette
+<role_intent table — primary_accent, ink_primary, ink_muted, ink_muted_strong (if dark), surface_default, surface_raised, etc., with hex + token names>
+
+## Typography
+<font pair (display + text), open_source_equivalents, scale (h1, h2, h3, body, small, eyebrow)>
+
+## Spacing
+<scale: 4 / 8 / 16 / 24 / 40 / 64 — or custom>
+
+## Motion
+<duration scale, easing baseline, MOTION_INTENSITY dial value>
+
+## Structural intent
+<lifted prose triad — verbatim from primary anchor pages: why_it_works + generation_prompt>
+
+## Layout posture
+<from anchor pages — only present if VARIANCE ≥ 7 OR interview Q7 flagged non-standard structure; else omit this section>
+
+## Anti-pattern bans
+- BAN 1: <terse one-liner>
+- BAN 2: <terse one-liner>
+- BAN 3: <terse one-liner>
+- BAN 4: <terse one-liner>
+(Full prose rationale lives in style-guide.md ## Anti-patterns to avoid.)
+
+## Final decision
+- timestamp: <YYYY-MM-DD HH:MM>
+- chosen candidate: <name>
+- source IDs: <comma-separated palette/font/page IDs>
+- user customisations: <list of tweaks user requested during Phase 4 preview, or "none">
+```
+
+### Phase 5b — `design/style-guide.md`
+
+Consult [`skills/design/references/style-guide-template.md`](../skills/design/references/style-guide-template.md) for the full template. Fill in the seven sections (Accessibility floor, Touch targets, Platform constraints, Density & spacing, Motion rules, Anti-patterns, Component states required) using:
+
+- Stack from `.cache/stack.json` for platform-specific values.
+- Palette from the chosen direction for the contrast table.
+- DENSITY and MOTION_INTENSITY dials from `.cache/interview.json` for derived padding and durations.
+- BAN 1-4 from the chosen direction for the anti-patterns expansion.
+
+**Numerical contrast computation (mandatory).** For Section 1's contrast table:
+
+1. Build a list of (palette role × ink token) pairs. Typical pairs to compute:
+   - `ink-primary` on `surface-default`
+   - `ink-muted` on `surface-default`
+   - `ink-muted-strong` on `surface-default` (if dark theme)
+   - `ink-primary` on `surface-raised`
+   - `primary-accent` (as ink) on `surface-default`
+   - `ink-on-accent` on `primary-accent`
+2. Choose threshold per pair: `4.5` for body text, `3.0` for large text and UI components.
+3. Build JSON payload:
+   ```json
+   {
+     "pairs": [
+       {"name": "ink-primary on surface-default", "fg": "#0A0B10", "bg": "#FFFFFF", "threshold": 4.5},
+       ...
+     ]
+   }
+   ```
+4. Invoke via Bash:
+   ```bash
+   echo '<json>' | python skills/design/scripts/compute_contrast.py
+   ```
+5. Parse the response and render a markdown table in Section 1:
+   ```
+   | Pair | Ratio | Threshold | Pass |
+   |---|---|---|---|
+   | ink-primary on surface-default | 18.42 | 4.5 | ✅ |
+   | ink-muted on surface-default | 5.21 | 4.5 | ✅ |
+   ...
+   ```
+6. For any ❌ pair: add a note line below the table — `consider adding ink-muted-strong (target: 6.5-7:1 against surface-default) for nav/eyebrow/footer text below 14px`.
+
+### Phase 5c — `design/content-library.md`
+
+Consult [`skills/design/references/content-library-template.md`](../skills/design/references/content-library-template.md) for the full template. Fill in the four sections (Voice & tone, UI states, Forms, Notifications) using:
+
+- Mood from interview Q6 + brand voice from interview Q7 for the voice principles (3-5 anchored in the project's mood vocabulary).
+- Project-specific copy examples for empty/error/success/loading states (rewrite the template's generic examples in the project's voice).
+- Stack from `.cache/stack.json` to decide whether to include iOS-specific `references/ios/ui-writing.md` rules.
+
+### Phase 5d — `design/tokens.css` (or iOS equivalent)
+
+Same as v2.0 — CSS custom properties for all palette + typography + spacing tokens. For iOS: write `design/tokens.json` and SwiftUI theme files per `skills/design/templates/ios/Theme/`.
+
+**Dark-theme nav contrast token (preserved from v2.0):** if `appearance=dark`, emit `--ink-muted-strong` (≥ 6.5:1 against `--surface-default`) in addition to `--ink-muted`. Annotate in `design-system.md` Palette section.
+
+### Phase 5e — Move interview captures to `.cache/`
+
+Convert the in-memory interview answers (Q1-Q7 from Phase 1, Phase 2 vocab mapping, Phase 4 preview pick) to JSON and write `design/.cache/interview.json`:
+
+```json
+{
+  "captured_at": "<YYYY-MM-DD HH:MM>",
+  "references": [...],
+  "documentation": "...",
+  "code_walk_findings": "...",
+  "audience": "...",
+  "industry": "...",
+  "mood": "...",
+  "constraints": "...",
+  "dial_values": {
+    "DENSITY": <int>,
+    "MOTION_INTENSITY": <int>,
+    "VARIANCE": <int>
+  },
+  "preview_pick": {
+    "candidate_name": "...",
+    "selected_at": "<YYYY-MM-DD HH:MM>",
+    "source_IDs": [...]
+  }
+}
+```
+
+This file is **not for the user** — it's debug context for `/design_page`, `/design_screen`, `/build`, and `/improve` to consult. The `.cache/.gitignore` from Phase 0 keeps it out of git.
+
+### Phase 5 — Confirm
+
+After all writes, list the files with byte sizes (one per line):
+```
+✓ design/design-system.md (<bytes> B)
+✓ design/style-guide.md (<bytes> B)
+✓ design/content-library.md (<bytes> B)
+✓ design/tokens.css (<bytes> B)
+✓ design/.cache/interview.json (<bytes> B)
+```
 
 ## Phase 6 — Next-step block
 
