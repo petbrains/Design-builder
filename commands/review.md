@@ -23,6 +23,11 @@ Capture the chosen mode for the report.
 
 ## Phase 2 — Delegate to design-auditor
 
+Before dispatching, read the project's three foundation files so the auditor has correct context:
+- `design/design-system.md` — design intent, direction, token decisions
+- `design/style-guide.md` — typography scale, color palette, spacing, accessibility floor (contrast table)
+- `design/content-library.md` — voice & tone principles, copy patterns
+
 Use the `Task` tool to invoke the `design-auditor` sub-agent (see `agents/design-auditor.md`). Pass:
 - `project_path` — the resolved target root
 - `platform` — `web` / `ios` / `cross` (infer from project: SwiftUI present → ios; tailwind/React → web; both → cross)
