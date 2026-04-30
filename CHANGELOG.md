@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.1.1 — 2026-04-30
+
+### Changed
+- `.claude-plugin/plugin.json` — author simplified to `{ "name": "Petbrains" }` (no personal name/email).
+
+### Fixed
+- `/setup` no longer writes `design/interview.md` (was still happening in v2.1.0 despite changelog claim — `commands/setup.md` Phase 1 still instructed Claude to write the file). Phase 1 now keeps interview answers in memory until Phase 5e persists them to `design/.cache/interview.json`.
+- Stale `design/interview.md` references replaced with `design/.cache/interview.json` across `CLAUDE.md`, `README.md`, `skills/design/SKILL.md`, `skills/design/references/layer1-resolvers.md`, `skills/design/references/system/web-pipeline.md`.
+- `README.md` rewritten for v2.1: 6 commands instead of 4, spec-first explanation, `/design_page`/`/design_screen`/`/build` flow, "Project output" section updated to reflect v2.1 file layout (three foundation files, `pages/`, `screens/`, `.cache/`).
+
 ## v2.1.0 — 2026-04-29
 
 ### Added

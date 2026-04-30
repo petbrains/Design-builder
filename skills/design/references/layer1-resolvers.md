@@ -206,11 +206,11 @@ The resolver returns candidates. Whatever you do with them, **the candidate outp
 
 ## VARIANCE-driven structural axis (mandatory at high VARIANCE)
 
-When a caller resolves `type='page'` with `VARIANCE >= 7` (read from `design/interview.md` or explicit user instruction), the filter MUST include at least one structural axis — `signature` (e.g. `off_grid`, `asymmetric`, `scroll_narrative`, `editorial_layout`) or `good_for_stage` matched to the page's anchor section.
+When a caller resolves `type='page'` with `VARIANCE >= 7` (read from `design/.cache/interview.json` or explicit user instruction), the filter MUST include at least one structural axis — `signature` (e.g. `off_grid`, `asymmetric`, `scroll_narrative`, `editorial_layout`) or `good_for_stage` matched to the page's anchor section.
 
 Reason (documented v2.0 test failure on Lumen): mood-only filtering at high VARIANCE returned visually-on-brief but structurally-typical pages (xAI welcome + Synapse — both visually distinctive but both linear lengthwise). The system shipped looked bold but `/create` reproduced a classic `hero → stats → 2× feature-split → CTA → footer` chain on top of it. Without a structural axis in the resolver call, the dial never reached layout.
 
-If the user explicitly banned typical structure in `interview.md` Q7, treat it as `VARIANCE = 10` regardless of dial — structural axis is non-negotiable.
+If the user explicitly banned typical structure in `.cache/interview.json` Q7, treat it as `VARIANCE = 10` regardless of dial — structural axis is non-negotiable.
 
 Resolver implementations should warn (not block) when called with `VARIANCE >= 7` and no structural axis in `filters`:
 
