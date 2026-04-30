@@ -1,12 +1,11 @@
 {
   "name": "design-builder-marketplace",
   "owner": {
-    "name": "Roman Pluzhnikov",
-    "email": "pluzhnikov137@gmail.com"
+    "name": "Pet Brains"
   },
   "metadata": {
     "description": "Design Builder plugin marketplace — 4-command design tooling for Claude Code, with inspiration_pages-driven page generation",
-    "version": "2.0.0"
+    "version": "2.1.1"
   },
   "plugins": [
     {
@@ -14,7 +13,15 @@
       "source": "./",
       "description": "4 commands (/setup, /create, /improve, /review) for web + iOS design. Knowledge-base skill backed by designlib MCP (inspiration_pages, palettes, styles, fonts), iOS HIG refs, designer motion perspectives, anti-pattern detection.",
       "category": "design",
-      "tags": ["design-system", "ui", "ux", "web", "ios", "motion", "figma"]
+      "tags": [
+        "design-system",
+        "ui",
+        "ux",
+        "web",
+        "ios",
+        "motion",
+        "figma"
+      ]
     }
   ]
 }
