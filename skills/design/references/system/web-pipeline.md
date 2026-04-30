@@ -5,7 +5,7 @@ description: Web output pipeline for /design system. Emits CSS tokens, Tailwind 
 
 # Web Pipeline
 
-Consumes: style/palette/font_pair picked via `interview.md` + designlib MCP.
+Consumes: style/palette/font_pair picked via `.cache/interview.json` + designlib MCP.
 Emits: production-ready token files + spec markdown.
 
 ## Output bundle

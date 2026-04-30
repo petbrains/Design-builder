@@ -1,17 +1,19 @@
 # design-builder — design plugin for Claude Code
 
-Build distinctive production-grade interfaces on **web** and **iOS** through 4 user-facing commands. A knowledge-base skill (anti-patterns, motion, HIG, BM25 search) backed by `designlib` MCP (palettes, fonts, **inspiration_pages**, landing_patterns, icons) does the heavy lifting; you stay in conversation with one of four entry points.
+Build distinctive production-grade interfaces on **web** and **iOS** through 6 user-facing commands. Spec-first: `/design_page` and `/design_screen` produce a markdown design spec; `/build` vendors it into source code. A knowledge-base skill (anti-patterns, motion, HIG, BM25 search) backed by `designlib` MCP (palettes, fonts, **inspiration_pages**, landing_patterns, icons) does the heavy lifting.
 
 Built on top of five open-source projects: [Impeccable](https://github.com/pbakaus/impeccable), [Emil Kowalski Design Skill](https://emilkowal.ski/skill), [Taste Skill](https://github.com/Leonxlnx/taste-skill), [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill), and [Design Motion Principles](https://github.com/kylezantos/design-motion-principles). See [NOTICE.md](NOTICE.md).
 
-## The 4 commands
+## The 6 commands
 
-| Command                              | What it does                                                                                                | When to use                                                              |
-|--------------------------------------|-------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| `/design-builder:setup` (alias `start`) | Interview → reference discovery → 2-3 direction candidates → visual HTML preview → emit `design/system.md`, `tokens.css`, `preview.html`. | New project. You don't have a design system yet.                          |
-| `/design-builder:create [what]`      | Read your `design/system.md` → pull 2-3 inspiration_pages from the MCP → user picks → generate page code with your tokens. | You have a foundation. You want a new page (`landing`, `pricing`, `signup`, ...). |
-| `/design-builder:improve [target]`   | Light audit of code / Figma / screenshots → list of concrete fixes → apply mechanical ones (`Edit`).        | You have an existing design. Something feels off. You want quick wins.   |
-| `/design-builder:review [target]`    | Strict critique by `design-auditor` agent: composition, typography, color/WCAG, motion, AI-slop, anti-patterns, accessibility. P0-P3 report → `design/reviews/`. | Before shipping. Or when `/improve` finished and you want full validation. |
+| Command | What it does | When to use |
+|---|---|---|
+| `/design-builder:setup` (alias `start`) | Interview → reference discovery → 2-3 direction candidates → HTML preview → emit `design-system.md`, `style-guide.md`, `content-library.md`, `tokens.css`, `preview.html`. | New project. You don't have a design foundation yet. |
+| `/design-builder:design_page <name>` | Reads the foundation → pulls inspiration_pages → user picks → writes a design spec to `design/pages/<name>.md` (no code). | You want to plan a web page before shipping code. |
+| `/design-builder:design_screen <name>` | Same, for app screens. Uses landing_patterns + iOS HIG. Spec adds Navigation context, Gestures, Safe areas. Writes to `design/screens/<name>.md`. | You want to plan an iOS / native screen before shipping code. |
+| `/design-builder:build [target]` | Reads spec(s) from `design/pages/` and/or `design/screens/` → writes code to your source tree. Supports single (`build landing`), batch (`build all`), glob, or interactive multi-select. | After one or more specs exist and you want production code. |
+| `/design-builder:improve [target]` | Light audit of code / Figma / screenshots → list of concrete fixes → apply mechanical ones (`Edit`). | Existing design. Something feels off. You want quick wins. |
+| `/design-builder:review [target]` | Strict critique by `design-auditor` agent: composition, typography, color/WCAG, motion, AI-slop, anti-patterns, accessibility. P0-P3 report → `design/reviews/`. | Before shipping, or when `/improve` finished and you want full validation. |
 
 Every command ends with a `Next:` block telling you what to do next.
 
@@ -28,30 +30,35 @@ No `npm install` or `pip install` required. Scripts use stdlib only.
 
 ## Project output — `design/` folder
 
-Every `setup`/`create`/`review` writes to `<your-project>/design/`:
+`/setup`, `/design_page`, `/design_screen`, `/build`, and `/review` write to `<your-project>/design/`:
 
 ```
 design/
-  system.md            # design system (palette, typography, spacing, mood, anti-patterns)
+  design-system.md     # design system (palette, typography, spacing, mood, anti-patterns)
+  style-guide.md       # a11y floor, platform constraints, density, motion, anti-patterns, states
+  content-library.md   # voice & tone, UI states, forms, notifications
   tokens.css           # CSS variables (or tokens.json for non-web)
-  interview.md         # captured answers + decisions
   preview.html         # visual preview of the system / page
+  pages/               # design specs for web pages (markdown), one per page
+  screens/             # design specs for app screens (markdown), one per screen
   references/          # your reference URLs + downloaded screenshots
   screenshots/         # YOU drop screenshots here for /review (later: playwright auto)
   reviews/             # P0-P3 audit reports (review-YYYY-MM-DD-HHMM.md)
+  .cache/              # debug context for cross-command state (gitignored — interview.json, stack.json, ...)
 ```
 
 **Recommended `.gitignore`:**
 ```
 design/references/downloaded/
 design/screenshots/
+design/.cache/
 ```
-(Version `system.md`, `tokens.css`, `interview.md`, `reviews/`. The downloaded binaries are noise.)
+(Version `design-system.md`, `style-guide.md`, `content-library.md`, `tokens.css`, `pages/`, `screens/`, `reviews/`. The downloaded binaries and `.cache/` debug state are noise.)
 
 ## Three-layer architecture
 
 ```
-COMMANDS         →  /setup · /create · /improve · /review
+COMMANDS         →  /setup · /design_page · /design_screen · /build · /improve · /review
 SKILL (rules)    →  Layer 2 filters · Layer 1 resolvers · knowledge base
 LAYER 1 SOURCES  →  Project tokens · designlib MCP (inspiration_pages, palettes, ...) · CSV · iOS HIG · free
 ```
@@ -60,7 +67,7 @@ Every command's output is gated through six Layer 2 filters (Direction, Dials, A
 
 ## inspiration_pages — the new whole-page reference
 
-`designlib` MCP exposes 405 inspiration_pages (sourced from land-book): full-page references with palette / typography / sections / mood / generation_prompt. `/create` uses them as the primary seed for new pages. Future: `inspiration_parts` (hero / CTA / paywall / pricing_table) — interface reserved.
+`designlib` MCP exposes 405 inspiration_pages (sourced from land-book): full-page references with palette / typography / sections / mood / generation_prompt. `/design_page` uses them as the primary seed for new page specs; `/build` then vendors the spec into code. Future: `inspiration_parts` (hero / CTA / paywall / pricing_table) — interface reserved.
 
 Schema map: [`skills/design/references/inspiration_pages.md`](skills/design/references/inspiration_pages.md).
 Resolver contract: [`skills/design/references/layer1-resolvers.md`](skills/design/references/layer1-resolvers.md).
@@ -84,7 +91,7 @@ Routing detail: [`skills/design/references/figma/README.md`](skills/design/refer
 
 ## What's inside
 
-- `commands/` — 4 user-facing slash commands (+ `start.md` alias)
+- `commands/` — 6 user-facing slash commands (+ `start.md` alias for `setup`)
 - `skills/design/SKILL.md` — knowledge base, filters, Layer 1 resolvers
 - `skills/design/references/` — deep documentation (web, iOS, motion, brand, figma, system, design-system, ui-styling, slides)
 - `skills/design/data/` — CSV databases (UX guidelines, tech stacks, anti-patterns)

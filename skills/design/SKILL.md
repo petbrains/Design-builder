@@ -105,9 +105,9 @@ iOS deep references: [`references/ios/`](references/ios/README.md) — 18 files.
 
 Required minimum: target audience, top 3 use cases, brand personality (3 concrete words), platform.
 
-Where to find: `design/interview.md` (written by `/setup`), or by reading the project's brief/PRD.
+Where to find: `design/.cache/interview.json` (written by `/setup`), or by reading the project's brief/PRD.
 
-**Code-only inference is insufficient.** Code says what was built; not who it's for or how it should feel. If a command runs without `design/interview.md` AND without project tokens AND without an explicit user-supplied brief, the command must stop and ask — never invent context.
+**Code-only inference is insufficient.** Code says what was built; not who it's for or how it should feel. If a command runs without `design/.cache/interview.json` AND without project tokens AND without an explicit user-supplied brief, the command must stop and ask — never invent context.
 
 ## Reference index
 
@@ -206,7 +206,7 @@ Commit to a BOLD direction. Purpose / tone / differentiation. Bold maximalism an
 
 ## Design Dials
 
-Three tunable parameters: `DESIGN_VARIANCE` (1-10, default 8), `MOTION_INTENSITY` (1-10, default 6), `VISUAL_DENSITY` (1-10, default 4). User sets in chat or `design/interview.md`. Detail: [`references/design-dials.md`](references/design-dials.md).
+Three tunable parameters: `DESIGN_VARIANCE` (1-10, default 8), `MOTION_INTENSITY` (1-10, default 6), `VISUAL_DENSITY` (1-10, default 4). User sets in chat or via `/setup` (persisted to `design/.cache/interview.json`). Detail: [`references/design-dials.md`](references/design-dials.md).
 
 ## Output Rules
 

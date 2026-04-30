@@ -32,7 +32,7 @@ Extension markers in code: `KB-EXTENSION` (Layer 1 source), `FILTER-EXTENSION` (
 
 | Command                              | Output target                                          |
 |--------------------------------------|--------------------------------------------------------|
-| `/design-builder:setup`              | `<project>/design/system.md`, `tokens.css`, `interview.md`, `preview.html`, `references/` |
+| `/design-builder:setup`              | `<project>/design/design-system.md`, `style-guide.md`, `content-library.md`, `tokens.css`, `preview.html`, `references/`, `.cache/interview.json` |
 | `/design-builder:create [what]`      | Source code in user's source tree (e.g. `src/pages/landing.tsx`); optional `design/preview.html` |
 | `/design-builder:improve [target]`   | Patches user files via `Edit`; no writes to `design/` |
 | `/design-builder:review [target]`    | `<project>/design/reviews/review-YYYY-MM-DD-HHMM.md` (delegates to `design-auditor`) |

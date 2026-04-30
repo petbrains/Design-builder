@@ -147,9 +147,9 @@ Collect the following. Ask **one question per message**, prefer multiple-choice 
 6. "Three words for the mood you want — concrete, not generic ('confident editorial' over 'premium')."
 7. "Any hard constraints? Brand colors that must appear, technical limits, accessibility floor (WCAG AA / AAA), forbidden patterns."
 
-Capture every answer to `design/interview.md` with a timestamp as you go. Use `Write` (first answer) or `Edit` (subsequent) to append.
+Capture every answer in memory as you go (you'll persist them to `design/.cache/interview.json` in Phase 5e). Do NOT write `design/interview.md` — that file was deprecated in v2.1; interview data lives in `.cache/` only.
 
-If the user said yes to walking the code: use `Glob` for `tailwind.config.*`, `tokens.css`, `**/*.xcassets`, `package.json`, then `Read` the most informative ones; record findings in `design/interview.md` under `## Code walk findings`.
+If the user said yes to walking the code: use `Glob` for `tailwind.config.*`, `tokens.css`, `**/*.xcassets`, `package.json`, then `Read` the most informative ones; keep findings in memory for the `code_walk_findings` field of `.cache/interview.json`.
 
 If the user supplied URLs to references: ask whether to download screenshots (default yes); record URLs to `design/references/urls.md`; if downloading, save to `design/references/downloaded/<safe_filename>`.
 
@@ -159,7 +159,7 @@ Resolve direction candidates through `get_design_reference()` (see `skills/desig
 
 Also **inspiration_pages are web-only** — if the project is iOS or cross, the resolver auto-falls-back to `landing_patterns` for page references; surface this in the user-facing card.
 
-**Vocabulary check (mandatory before any list query).** Call `mcp__designlib__list_inspiration_page_facets`, `mcp__designlib__list_palette_facets`, `mcp__designlib__list_font_pair_facets` once each. Map the user's mood/direction language from `interview.md` to actual facet values BEFORE building filters. The user's interview language is almost never in the library vocab (e.g. `cinematic`, `nocturnal`, `editorial-luxury` — none of these are MCP facets). Build a mapping table in your scratchpad:
+**Vocabulary check (mandatory before any list query).** Call `mcp__designlib__list_inspiration_page_facets`, `mcp__designlib__list_palette_facets`, `mcp__designlib__list_font_pair_facets` once each. Map the user's mood/direction language from the Phase 1 answers (in memory) to actual facet values BEFORE building filters. The user's interview language is almost never in the library vocab (e.g. `cinematic`, `nocturnal`, `editorial-luxury` — none of these are MCP facets). Build a mapping table in your scratchpad:
 
 | User's word | MCP-vocab fallback |
 |---|---|
@@ -173,7 +173,7 @@ Show the mapping to the user only if the translation is non-obvious or lossy.
 2. Call `get_design_reference(type='font_pair', filters={industry, mood: <one>}, limit=4)`.
 3. Call `get_design_reference(type='page', filters={page_type='marketing_landing', mood: <one>, style_family: <one or omitted>}, limit=6)` — to ground in real examples. If you want to mix moods, call this 2-3 times with different `mood` values and dedupe by `id`.
 
-**Structural axis (mandatory if user banned typical structure).** If `interview.md` Q7 captured a constraint like "не типичная структура лендинга" / "non-standard layout" / "off-grid" / VARIANCE ≥ 7 in dials, ALSO call `list_inspiration_pages` filtered by `signature` (e.g. `off_grid`, `asymmetric`, `scroll_narrative`, `editorial_layout`) — at least one candidate must be anchored on a structurally distinctive page, not just a visually distinctive one. Otherwise the system you ship will look bold but `/create` will reproduce a classic linear landing on top of it.
+**Structural axis (mandatory if user banned typical structure).** If Phase 1 Q7 captured a constraint like "не типичная структура лендинга" / "non-standard layout" / "off-grid" / VARIANCE ≥ 7 in dials, ALSO call `list_inspiration_pages` filtered by `signature` (e.g. `off_grid`, `asymmetric`, `scroll_narrative`, `editorial_layout`) — at least one candidate must be anchored on a structurally distinctive page, not just a visually distinctive one. Otherwise the system you ship will look bold but `/create` will reproduce a classic linear landing on top of it.
 
 From these, assemble **2-3 direction candidates**. Each candidate combines:
 
@@ -325,7 +325,7 @@ Same as v2.0 — CSS custom properties for all palette + typography + spacing to
 
 **Dark-theme nav contrast token (preserved from v2.0):** if `appearance=dark`, emit `--ink-muted-strong` (≥ 6.5:1 against `--surface-default`) in addition to `--ink-muted`. Annotate in `design-system.md` Palette section.
 
-### Phase 5e — Move interview captures to `.cache/`
+### Phase 5e — Persist interview captures to `.cache/`
 
 Convert the in-memory interview answers (Q1-Q7 from Phase 1, Phase 2 vocab mapping, Phase 4 preview pick) to JSON and write `design/.cache/interview.json`:
 
